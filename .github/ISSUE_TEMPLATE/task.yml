@@ -1,0 +1,36 @@
+name: 📋 업무 지시서
+description: AI 사원에게 업무를 지시합니다.
+title: "[업무] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        담당 사원 라벨(`담당:claude` 또는 `담당:gpt`)을 붙여 주세요.
+        사원은 이 Issue에 상태 보고와 업무 보고서(서류)를 댓글로 남깁니다. 결재는 `/승인` 또는 `/반려 사유` 댓글로 합니다.
+  - type: dropdown
+    id: assignee
+    attributes:
+      label: 담당 사원
+      options:
+        - claude
+        - gpt
+        - 둘 다 (협업)
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: 업무 내용
+      description: 무엇을 해 주길 원하나요?
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: 완료 기준
+      description: 어떻게 되면 끝난 것으로 볼까요?
+  - type: textarea
+    id: notes
+    attributes:
+      label: 참고 사항
+      description: 참고 자료, 이미지, 관련 Issue 등

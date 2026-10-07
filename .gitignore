@@ -1,0 +1,29 @@
+# Unity (unity/ 폴더 기준)
+unity/[Ll]ibrary/
+unity/[Tt]emp/
+unity/[Oo]bj/
+unity/[Bb]uild/
+unity/[Bb]uilds/
+unity/[Ll]ogs/
+unity/[Uu]ser[Ss]ettings/
+unity/[Mm]emoryCaptures/
+unity/*.csproj
+unity/*.sln
+unity/*.suo
+unity/*.user
+unity/*.pidb
+unity/*.booproj
+unity/*.unityproj
+
+# 에디터·OS
+.vs/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 비밀 정보
+.env
+.env.*
+*.pem
+*.key
