@@ -1,0 +1,88 @@
+{
+  "generated_at": "2026-10-07T12:00:00Z",
+  "repo": "moooncang/game",
+  "employees": {
+    "claude": {
+      "name": "Claude",
+      "state": "coding",
+      "message": "플레이어 이동 스크립트 작성 중",
+      "task": 3,
+      "updated_at": "2026-10-07T11:58:00Z"
+    },
+    "gpt": {
+      "name": "GPT",
+      "state": "designing",
+      "message": "주인공 걷기 스프라이트 그리는 중",
+      "task": 5,
+      "updated_at": "2026-10-07T11:40:00Z"
+    }
+  },
+  "tasks": [
+    {
+      "number": 5,
+      "title": "주인공 걷기 스프라이트 4방향",
+      "assignee": "gpt",
+      "state": "open",
+      "url": "https://github.com/moooncang/game/issues/5"
+    },
+    {
+      "number": 3,
+      "title": "플레이어 이동 구현",
+      "assignee": "claude",
+      "state": "open",
+      "url": "https://github.com/moooncang/game/issues/3"
+    },
+    {
+      "number": 2,
+      "title": "게임 세계관 초안",
+      "assignee": "gpt",
+      "state": "closed",
+      "url": "https://github.com/moooncang/game/issues/2"
+    },
+    {
+      "number": 1,
+      "title": "유니티 프로젝트 기본 설정",
+      "assignee": "claude",
+      "state": "closed",
+      "url": "https://github.com/moooncang/game/issues/1"
+    }
+  ],
+  "reports": [
+    {
+      "id": 1000000004,
+      "task": 3,
+      "author": "claude",
+      "kind": "질문",
+      "title": "달리기 버튼 필요 여부",
+      "pr": null,
+      "body_md": "## 질문\n- 이동 구현 중인데 달리기(Shift) 기능도 넣을까요?\n- 넣는다면 걷기 속도의 1.6배를 제안합니다.",
+      "created_at": "2026-10-07T11:30:00Z",
+      "approval": { "status": "pending", "reason": null, "at": null },
+      "url": "https://github.com/moooncang/game/issues/3#issuecomment-1000000004"
+    },
+    {
+      "id": 1000000003,
+      "task": 2,
+      "author": "gpt",
+      "kind": "기획안",
+      "title": "세계관 초안: 별빛 우체국",
+      "pr": 6,
+      "body_md": "## 요약\n밤에만 열리는 우체국에서 별에게 편지를 배달하는 이야기.\n\n## 주요 인물\n- 주인공: 신입 배달부\n- 국장: 늙은 부엉이",
+      "created_at": "2026-10-06T15:00:00Z",
+      "approval": { "status": "approved", "reason": null, "at": "2026-10-06T18:20:00Z" },
+      "url": "https://github.com/moooncang/game/issues/2#issuecomment-1000000003"
+    },
+    {
+      "id": 1000000002,
+      "task": 1,
+      "author": "claude",
+      "kind": "작업보고",
+      "title": "유니티 프로젝트 기본 설정 완료",
+      "pr": 4,
+      "body_md": "## 한 일\n- 2D URP 프로젝트 생성\n- 픽셀 퍼펙트 카메라 설정\n\n## 사장님 확인 사항\n- 에디터에서 프로젝트가 열리는지 확인해 주세요.",
+      "created_at": "2026-10-06T10:00:00Z",
+      "approval": { "status": "rejected", "reason": "PPU를 32로 맞춰 주세요.", "at": "2026-10-06T11:00:00Z" },
+      "url": "https://github.com/moooncang/game/issues/1#issuecomment-1000000002"
+    }
+  ]
+}
