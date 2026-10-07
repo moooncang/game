@@ -2,137 +2,199 @@
 <html lang="ko">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="theme-color" content="#264d3c" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#263c36" />
     <title>작은 도트 회사</title>
+    <link
+      rel="preload"
+      href="assets/fonts/Galmuri11.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header class="topbar">
-      <a class="brand" href="./"
-        ><span class="logo">▦</span><span data-company>작은 도트 회사</span></a
-      ><span class="edition">OFFICE JOURNAL / 001</span
-      ><a
-        href="https://github.com/moooncang/game"
-        target="_blank"
-        rel="noopener noreferrer"
-        >GitHub ↗</a
-      >
-    </header>
-    <main>
-      <section class="intro">
-        <div>
-          <p class="eyebrow">작은 픽셀, 함께 만드는 이야기</p>
-          <h1>오늘도, 한 칸씩<br />만들어 가는 중<span class="dot">.</span></h1>
-          <p class="description">
-            두 AI 사원의 작업실에 오신 것을 환영합니다.<br />책상 위 아이디어가
-            게임이 되는 과정을 함께 지켜봐 주세요.
-          </p>
+    <main class="game" aria-label="회사 운영 화면">
+      <header class="hud pixel-panel">
+        <div class="company">
+          <span class="company-icon" aria-hidden="true">▦</span>
+          <div>
+            <h1 data-company>작은 도트 회사</h1>
+            <span class="version">OFFICE · 샘플 모드</span>
+          </div>
         </div>
-        <div class="intro-note">
-          <span class="small-label">지금 우리 사무실은</span
-          ><strong>아이디어가 자라는 중</strong><span>✳ CLAUDE + GPT</span>
+        <div class="hud-clock">
+          <time id="clock"></time><span id="updated">피드 불러오는 중</span>
         </div>
-      </section>
-      <div class="workspace-grid">
-        <section class="panel office-panel" aria-labelledby="office-title">
-          <div class="panel-heading">
-            <h2 id="office-title"><span class="live-dot"></span>작업실 풍경</h2>
-            <span class="tag">샘플 데이터</span>
-          </div>
-          <div class="scene-wrap">
-            <canvas
-              id="office"
-              width="288"
-              height="192"
-              aria-label="Claude와 GPT의 도트 사무실. 아래 사원 카드에서 상태를 확인할 수 있습니다."
-            ></canvas
-            ><button id="scene-inbox" aria-label="사장님 서류함 열기">
-              서류함 <span id="scene-count">0</span> ↗
-            </button>
-          </div>
-          <div class="office-footer">
-            <span>☀ 작은 작업실 · 큰 상상</span
-            ><span id="updated">데이터 불러오는 중</span>
-          </div>
-          <div id="employees" class="employees"></div>
-          <div class="demo-bar">
-            <div>
-              <strong>사무실에 새 소식이 도착하면?</strong>
-              <p>사원이 서류를 들고 결재함으로 걸어갑니다.</p>
-            </div>
-            <button id="demo" disabled>서류 배달 체험 ↗</button>
-          </div>
-          <p id="notice" role="status" aria-live="polite"></p>
-        </section>
-        <section
-          class="panel inbox-panel"
-          id="inbox"
-          aria-labelledby="inbox-title"
+        <button class="hud-inbox pixel-button" data-open="inbox-dialog">
+          <span class="paper-icon" aria-hidden="true"></span>결재 대기
+          <strong id="pending-count">0</strong>
+        </button>
+        <a
+          class="repo-link pixel-button"
+          data-repo-link=""
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="GitHub 저장소 열기"
+          >GitHub ↗</a
         >
-          <div class="panel-heading">
-            <h2 id="inbox-title">
-              사장님 결재함 <span id="unread" class="count">0</span>
-            </h2>
-            <span class="small-label">INBOX</span>
-          </div>
-          <p class="panel-description">
-            책상 위에 도착한 이야기들을 확인해 주세요.
-          </p>
-          <div class="filters" role="group" aria-label="결재 상태 필터">
-            <button data-filter="all" aria-pressed="true">전체</button
-            ><button data-filter="pending" aria-pressed="false">대기</button
-            ><button data-filter="approved" aria-pressed="false">승인</button
-            ><button data-filter="rejected" aria-pressed="false">반려</button>
-          </div>
-          <div class="list-toolbar">
-            <span id="report-count">서류 0건</span
-            ><label
-              >작성자
-              <select id="author">
-                <option value="all">모든 사원</option>
-                <option value="claude">Claude</option>
-                <option value="gpt">GPT</option>
-              </select></label
-            >
-          </div>
-          <div id="reports" class="reports">
-            <p class="empty">서류를 불러오는 중입니다.</p>
-          </div>
-          <p class="inbox-note">
-            결재는 서류 안의 GitHub 버튼에서 진행해 주세요.
-          </p>
-        </section>
-      </div>
-      <section class="panel task-panel">
-        <div class="panel-heading">
-          <h2>우리의 업무 게시판</h2>
-          <a
-            class="text-link"
-            href="https://github.com/moooncang/game/issues/new?template=task.yml"
-            target="_blank"
-            rel="noopener noreferrer"
-            >새 업무 지시 ＋</a
+      </header>
+
+      <section id="map-viewport" class="map-viewport" aria-label="사무실 맵">
+        <div class="map-caption">
+          <span class="location-marker" aria-hidden="true"></span> 본사 / 1F
+          사무실
+        </div>
+        <div id="scene" class="scene">
+          <canvas
+            id="office"
+            width="320"
+            height="208"
+            aria-label="회사 사무실. 서류함, 업무 게시판, 사원을 선택하세요."
+          ></canvas>
+          <button
+            id="scene-inbox"
+            class="map-object"
+            data-open="inbox-dialog"
+            aria-label="서류함 열기"
+          >
+            <span class="object-label">서류함 <b id="scene-count">0</b></span>
+          </button>
+          <button
+            id="scene-board"
+            class="map-object"
+            data-open="tasks-dialog"
+            aria-label="업무 게시판 열기"
+          >
+            <span class="object-label">업무 게시판</span>
+          </button>
+          <div id="actors"></div>
+        </div>
+        <span class="map-coordinate" aria-hidden="true">1F · OFFICE</span>
+      </section>
+
+      <footer class="command-panel pixel-panel">
+        <div class="command-top">
+          <div
+            class="staff-shortcuts"
+            id="staff-shortcuts"
+            aria-label="사원 상태 바로가기"
+          ></div>
+          <span class="controls-hint"
+            >물건·사원 선택 <kbd>Enter</kbd> 확인 <kbd>Esc</kbd> 닫기</span
           >
         </div>
-        <div id="tasks" class="tasks"></div>
-      </section>
-      <footer>
-        <span>© <span data-company>작은 도트 회사</span></span
-        ><span>하나의 픽셀에서, 하나의 세계로.</span
-        ><span>시안 · 실제 업무와 무관한 예시입니다</span>
+        <nav class="commands" aria-label="사무실 메뉴">
+          <button class="pixel-button" data-open="inbox-dialog">
+            <span aria-hidden="true">▤</span> 결재함 <b id="unread">0</b>
+          </button>
+          <button class="pixel-button" data-open="tasks-dialog">
+            <span aria-hidden="true">▦</span> 업무 게시판
+          </button>
+          <button class="pixel-button" id="demo" disabled>
+            <span aria-hidden="true">▱</span> 배달 테스트
+          </button>
+        </nav>
+        <p id="notice" role="status" aria-live="polite">
+          피드를 불러오는 중입니다.
+        </p>
       </footer>
     </main>
-    <dialog id="report-dialog" aria-labelledby="report-title">
-      <div class="dialog-top">
-        <span class="eyebrow">OFFICE DOCUMENT</span
-        ><button id="close-dialog" aria-label="서류 닫기">✕</button>
+
+    <dialog id="inbox-dialog" class="game-window" aria-labelledby="inbox-title">
+      <div class="window-bar">
+        <h2 id="inbox-title">▤ 사장님 결재함</h2>
+        <button class="close-button" data-close aria-label="결재함 닫기">
+          ×
+        </button>
       </div>
-      <p id="report-meta" class="small-label"></p>
-      <h2 id="report-title"></h2>
-      <div id="approval"></div>
-      <article id="report-body"></article>
-      <div id="report-links" class="report-links"></div>
+      <div class="window-content">
+        <div class="filters" role="group" aria-label="결재 상태 필터">
+          <button data-filter="all" aria-pressed="true">전체</button
+          ><button data-filter="pending" aria-pressed="false">대기</button
+          ><button data-filter="approved" aria-pressed="false">승인</button
+          ><button data-filter="rejected" aria-pressed="false">반려</button>
+        </div>
+        <div class="list-toolbar">
+          <span id="report-count">서류 0건</span
+          ><label
+            >작성자
+            <select id="author">
+              <option value="all">모든 사원</option>
+              <option value="claude">Claude</option>
+              <option value="gpt">GPT</option>
+            </select></label
+          >
+        </div>
+        <div id="reports" class="reports">
+          <p class="empty">서류를 불러오는 중입니다.</p>
+        </div>
+      </div>
+      <div class="window-footer">
+        결재는 서류 안의 GitHub 링크에서 진행합니다.
+      </div>
+    </dialog>
+
+    <dialog id="tasks-dialog" class="game-window" aria-labelledby="tasks-title">
+      <div class="window-bar">
+        <h2 id="tasks-title">▦ 업무 게시판</h2>
+        <button class="close-button" data-close aria-label="업무 게시판 닫기">
+          ×
+        </button>
+      </div>
+      <div class="window-content"><div id="tasks" class="tasks"></div></div>
+      <div class="window-footer">
+        <a
+          class="pixel-button"
+          data-repo-link="/issues/new?template=task.yml"
+          target="_blank"
+          rel="noopener noreferrer"
+          >새 업무 지시 ＋</a
+        >
+      </div>
+    </dialog>
+
+    <dialog
+      id="employee-dialog"
+      class="game-window employee-window"
+      aria-labelledby="employee-title"
+    >
+      <div class="window-bar">
+        <h2 id="employee-title">사원 상태</h2>
+        <button class="close-button" data-close aria-label="사원 상태 닫기">
+          ×
+        </button>
+      </div>
+      <div class="window-content" id="employee-detail"></div>
+    </dialog>
+
+    <dialog
+      id="report-dialog"
+      class="game-window document-window"
+      aria-labelledby="report-title"
+    >
+      <div class="window-bar">
+        <span>▤ 업무 서류</span
+        ><button
+          class="close-button"
+          id="close-dialog"
+          data-close
+          aria-label="서류 닫기"
+        >
+          ×
+        </button>
+      </div>
+      <div class="window-content">
+        <p id="report-meta" class="small-label"></p>
+        <h2 id="report-title"></h2>
+        <div id="approval"></div>
+        <article id="report-body"></article>
+        <div id="report-links" class="report-links"></div>
+      </div>
     </dialog>
     <script type="module" src="app.js"></script>
   </body>

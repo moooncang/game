@@ -33,6 +33,8 @@ let feed = null,
   demoSequence = 0;
 const demos = [];
 const office = new Office($("#office"));
+let selectedEmployee = null;
+let selectedReport = null;
 function node(tag, text, className) {
   const el = document.createElement(tag);
   if (text !== undefined) el.textContent = text;
@@ -74,6 +76,9 @@ function unreadCount() {
   const n = allReports().filter((r) => !read.has(String(r.id))).length;
   $("#unread").textContent = n;
   $("#scene-count").textContent = n;
+  $("#pending-count").textContent = allReports().filter(
+    (r) => r.approval?.status === "pending",
+  ).length;
 }
 function renderReports() {
   const list = $("#reports");
@@ -87,6 +92,7 @@ function renderReports() {
   $("#report-count").textContent = `서류 ${reports.length}건`;
   for (const r of reports) {
     const b = node("button", undefined, "report");
+    b.dataset.reportId = String(r.id);
     const meta = node("div", undefined, "meta");
     meta.append(
       node("span", `${r.author === "gpt" ? "GPT" : "Claude"} · ${r.kind}`),
@@ -112,6 +118,7 @@ function renderReports() {
   unreadCount();
 }
 function openReport(r) {
+  selectedReport = String(r.id);
   read.add(String(r.id));
   try {
     localStorage.setItem(storageKey, JSON.stringify([...read].slice(-2000)));
@@ -170,25 +177,72 @@ function openReport(r) {
   $("#report-dialog").showModal();
 }
 function renderEmployees() {
-  const list = $("#employees");
-  list.replaceChildren();
+  const list = $("#staff-shortcuts");
+  // 피드 갱신 중에도 키보드 포커스가 유지되도록 버튼을 재사용한다.
   for (const id of ["claude", "gpt"]) {
     const p = feed.employees[id] || {
       state: "offline",
       message: "퇴근했습니다.",
     };
-    const card = node("div", undefined, "employee");
-    const img = node("img");
-    img.src = `./assets/${id}.svg`;
-    img.alt = "";
-    img.className = "avatar";
-    const body = node("div");
-    const title = node("strong", id === "gpt" ? "GPT" : "Claude");
-    title.append(node("span", stateLabels[normalizeState(p.state)], "state"));
-    body.append(title, node("small", p.message));
-    card.append(img, body);
-    list.append(card);
+    let button = list.querySelector(`[data-employee="${id}"]`);
+    if (!button) {
+      button = node("button", undefined, "staff-button");
+      button.dataset.employee = id;
+      button.setAttribute(
+        "aria-label",
+        `${id === "gpt" ? "GPT" : "Claude"} 사원 상태 열기`,
+      );
+      const img = node("img");
+      img.src = `./assets/${id}.svg`;
+      img.alt = "";
+      const info = node("span");
+      info.append(node("span", id === "gpt" ? "GPT" : "Claude"), node("small"));
+      button.append(img, info);
+      button.addEventListener("click", () => openEmployee(id));
+      list.append(button);
+    }
+    button.querySelector("small").textContent =
+      stateLabels[normalizeState(p.state)];
   }
+  if (selectedEmployee && $("#employee-dialog").open)
+    renderEmployeeDetail(selectedEmployee);
+}
+function renderEmployeeDetail(id) {
+  const p = feed?.employees[id] || {
+    state: "offline",
+    message: "사원 정보가 없습니다.",
+  };
+  const name = id === "gpt" ? "GPT" : "Claude";
+  $("#employee-title").textContent = `${name} · 사원 상태`;
+  const portrait = node("div", undefined, "employee-portrait");
+  const img = node("img");
+  img.src = `./assets/${id}.svg`;
+  img.alt = "";
+  portrait.append(img);
+  const summary = node("div", undefined, "employee-summary");
+  summary.append(
+    node("div", name),
+    node("span", stateLabels[normalizeState(p.state)], "state"),
+  );
+  const task =
+    Number.isSafeInteger(p.task) && p.task > 0
+      ? externalLink(
+          `담당 업무 #${p.task} ↗`,
+          `https://github.com/${config.repository}/issues/${p.task}`,
+        )
+      : node("span", "배정된 업무 없음");
+  task.className = "employee-task";
+  $("#employee-detail").replaceChildren(
+    portrait,
+    summary,
+    node("p", p.message || "상태 메시지 없음", "employee-message"),
+    task,
+  );
+}
+function openEmployee(id) {
+  selectedEmployee = id;
+  renderEmployeeDetail(id);
+  $("#employee-dialog").showModal();
 }
 function renderTasks() {
   const list = $("#tasks");
@@ -220,6 +274,16 @@ function renderTasks() {
     list.append(node("p", "등록된 업무가 없습니다.", "empty"));
 }
 function updateTime() {
+  $("#clock").textContent =
+    new Date().toLocaleString("ko-KR", {
+      timeZone: "Asia/Seoul",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }) + " KST";
+  $("#clock").dateTime = new Date().toISOString();
   if (!feed) return;
   const mins = Math.max(
     0,
@@ -256,7 +320,7 @@ async function load() {
     renderTasks();
     updateTime();
     $("#demo").disabled = false;
-    $("#notice").textContent = "샘플 데이터로 둘러보는 시안입니다.";
+    $("#notice").textContent = "샘플 모드 · 물건이나 사원을 선택하세요.";
   } catch (error) {
     $("#notice").textContent =
       `데이터를 불러오지 못했습니다. 60초 후 다시 시도합니다. (${error.message})`;
@@ -269,6 +333,27 @@ async function load() {
 for (const el of document.querySelectorAll("[data-company]"))
   el.textContent = config.companyName;
 document.title = config.companyName;
+for (const link of document.querySelectorAll("[data-repo-link]")) {
+  link.href = `https://github.com/${config.repository}${link.dataset.repoLink}`;
+}
+for (const button of document.querySelectorAll("[data-open]")) {
+  button.addEventListener("click", () =>
+    document.getElementById(button.dataset.open).showModal(),
+  );
+}
+for (const button of document.querySelectorAll("[data-close]")) {
+  button.addEventListener("click", () => button.closest("dialog").close());
+}
+$("#report-dialog").addEventListener("close", () => {
+  if (!$("#inbox-dialog").open) return;
+  const button = [...document.querySelectorAll(".report")].find(
+    (el) => el.dataset.reportId === selectedReport,
+  );
+  (button || $("#inbox-dialog [data-close]")).focus();
+});
+$("#office").addEventListener("employee-select", (event) =>
+  openEmployee(event.detail),
+);
 for (const button of document.querySelectorAll("[data-filter]"))
   button.addEventListener("click", () => {
     filter = button.dataset.filter;
@@ -277,26 +362,16 @@ for (const button of document.querySelectorAll("[data-filter]"))
     renderReports();
   });
 $("#author").addEventListener("change", renderReports);
-$("#close-dialog").addEventListener("click", () => $("#report-dialog").close());
-$("#scene-inbox").addEventListener("click", () => {
-  $("#inbox").scrollIntoView({
-    behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
-      ? "instant"
-      : "smooth",
-    block: "start",
-  });
-  $("#inbox [data-filter]").focus({ preventScroll: true });
-});
 $("#demo").addEventListener("click", () => {
   const n = ++demoSequence;
   const r = {
     id: `demo-${Date.now()}-${n}`,
     author: n % 2 ? "gpt" : "claude",
     kind: "작업보고",
-    title: `[체험] 새로운 아이디어가 도착했어요 ${n}`,
+    title: `[테스트] 서류 배달 보고 ${n}`,
     task: 5,
     body_md:
-      "## 오늘의 작은 진전\n- 사무실에서 서류함까지 배달을 마쳤습니다.\n- 이 서류는 새로고침하면 사라집니다.\n\n**다음 이야기도 함께 만들어 주세요.**",
+      "## 배달 결과\n- 사무실에서 서류함까지 배달을 마쳤습니다.\n- 이 테스트 서류는 새로고침하면 사라집니다.",
     created_at: new Date().toISOString(),
     approval: { status: "pending" },
   };
@@ -310,6 +385,7 @@ $("#office").addEventListener("delivered", () => {
   $("#demo").disabled = false;
   $("#notice").textContent = "새 서류가 도착했습니다. 결재함에서 읽어 보세요.";
 });
+updateTime();
 load();
 setInterval(load, config.pollInterval);
 setInterval(updateTime, 30_000);
