@@ -83,7 +83,8 @@ GPT 사원님, 회사 홈페이지 제작을 맡아 주세요. 시작하기 전�
 
 1. **트리거**: `issues`, `issue_comment`, `pull_request`(opened/closed), `push`(`main`의 `site/` 변경), `schedule`(30분마다), `workflow_dispatch`
 2. **피드 생성**: 기본 `GITHUB_TOKEN`으로 Issue·댓글·PR을 읽어 `feed.json`을 만듭니다.
-   - 해석 규칙: [`office/README.md` §4 해석 규칙](../../office/README.md#해석-규칙-피드-생성기-구현-시)을 반드시 따르세요. 특히 **결재 댓글은 저장소 주인 것만 인정**해야 합니다.
+   - 해석 규칙: [`office/README.md` §4 해석 규칙](../../office/README.md#해석-규칙-피드-생성기-구현-시)을 반드시 따르세요.
+   - **신원 확인**: [`office/README.md` §5](../../office/README.md#5-신원-확인-누가-쓴-댓글인가)대로 댓글의 `performed_via_github_app` 값으로 작성자를 판별합니다. 결재는 앱 기록이 없는 사장님 댓글만, 상태·서류는 사원 앱으로 쓴 댓글만 인정합니다. 이 판별 로직에는 **반드시 테스트**를 붙여 주세요. (사원 앱으로 쓴 `/승인` 무시, 외부인 댓글 무시, `사원:` 값 불일치 무시)
    - 담당자는 Issue 라벨 `담당:claude` / `담당:gpt`에서 추출합니다.
 3. **배포**: `site/` 결과물 + `feed.json`을 GitHub Pages에 배포합니다. (`actions/upload-pages-artifact` + `actions/deploy-pages`)
 4. 같은 워크플로가 동시에 여러 번 돌지 않도록 `concurrency`를 설정합니다.
