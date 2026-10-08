@@ -1,3 +1,5 @@
+import { OfficeArt, employeeSprite, palette } from "./office-art.js";
+import { config } from "./config.js";
 const states = new Set([
   "offline",
   "idle",
@@ -28,8 +30,15 @@ const layouts = {
     ],
     plants: [
       [18, 62],
-      [292, 172],
+      [294, 174],
     ],
+    props: {
+      shelf: [202, 60, 34, 32],
+      vending: [222, 154, 22, 38],
+      cooler: [292, 62, 12, 30],
+      sofa: [26, 160, 56, 24],
+      boxes: [84, 174, 15, 13],
+    },
   },
   tall: {
     width: 160,
@@ -44,7 +53,16 @@ const layouts = {
     seats: { claude: [12, 204], gpt: [88, 204] },
     exit: [16, 216],
     windows: [[18, 24, 58, 27]],
-    plants: [[18, 150]],
+    plants: [
+      [76, 64],
+      [112, 200],
+    ],
+    props: {
+      shelf: [12, 130, 28, 30],
+      vending: [126, 170, 22, 36],
+      cooler: [142, 112, 12, 30],
+      sofa: [12, 165, 46, 16],
+    },
   },
 };
 
@@ -56,13 +74,11 @@ export class Office {
     this.people = {};
     this.queue = [];
     this.active = null;
-    this.sprites = {};
+    this.art = new OfficeArt(this.ctx);
+    this.effects = [];
     this.scale = 1;
     this.reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
     for (const id of ["claude", "gpt"]) {
-      const image = new Image();
-      image.src = `./assets/${id}.svg`;
-      this.sprites[id] = image;
       const actor = document.createElement("button");
       actor.className = "actor";
       actor.hidden = true;
@@ -135,7 +151,10 @@ export class Office {
         [p.x, p.y] = point;
         p.target = null;
         p.path = [];
-        if (this.active?.report.author === p.id) {
+        if (
+          this.active?.report.author === p.id &&
+          this.active.phase !== "back"
+        ) {
           this.active.phase = "out";
           this.active.hold = 0;
         }
@@ -145,16 +164,17 @@ export class Office {
     for (const id of ["claude", "gpt"]) {
       const source = employees[id] || { state: "offline", message: "" };
       const existing = this.people[id];
-      const p = existing || { id, path: [], target: null };
-      p.state = normalizeState(source.state);
+      const p = existing || { id, path: [], target: null, direction: "south" };
+      const state = normalizeState(source.state);
+      if (!existing || p.state !== state) p.workSince = performance.now();
+      p.state = state;
       p.message = String(source.message || "");
       // 첫 피드는 목적지에 즉시 배치하고 이후 상태 변경만 걸어서 이동한다.
       if (!existing) [p.x, p.y] = this.destination(p);
       this.people[id] = p;
       const actor = document.getElementById(`actor-${id}`);
       actor.dataset.state = p.state;
-      actor.querySelector(".actor-message").textContent = p.message;
-      actor.querySelector(".actor-message").hidden = !p.message;
+      actor.title = p.message;
     }
   }
   destination(p) {
@@ -178,6 +198,8 @@ export class Office {
       ...Object.values(l.desks).map(([x, y]) => [x - 4, y - 4, 60, 30]),
       l.inbox,
       l.meeting,
+      ...Object.values(l.props),
+      ...l.plants.map(([x, y]) => [x, y, 11, 10]),
     ];
     const key = ([x, y]) => `${x},${y}`;
     const from = start.map((v) => Math.round(v / step) * step),
@@ -223,109 +245,127 @@ export class Office {
     }
     return path;
   }
-  rect(x, y, w, h, color) {
-    this.ctx.fillStyle = color;
-    this.ctx.fillRect(Math.round(x), Math.round(y), w, h);
+  react(author, status) {
+    const p = this.people[author];
+    if (!p || !["approved", "rejected"].includes(status)) return;
+    p.reaction = {
+      text: status === "approved" ? "승인!" : "반려…",
+      until: performance.now() + 4000,
+    };
+    this.canvas.dispatchEvent(
+      new CustomEvent("approval-reaction", { detail: { author, status } }),
+    );
   }
-  desk(x, y, id) {
-    this.rect(x + 3, y + 8, 52, 23, "#6c5440");
-    this.rect(x + 4, y + 25, 5, 9, "#463f34");
-    this.rect(x + 44, y + 25, 5, 9, "#463f34");
-    this.rect(x, y, 52, 24, "#715c42");
-    this.rect(x + 2, y + 2, 48, 17, "#d6ad72");
-    this.rect(x + 3, y + 3, 46, 2, "#f0cc8b");
-    this.rect(x + 2, y + 20, 48, 3, "#a77b4c");
-    this.rect(x + 14, y - 12, 25, 19, "#343e36");
-    this.rect(x + 16, y - 10, 21, 14, "#6eab9c");
-    this.rect(x + 18, y - 8, 17, 9, id === "gpt" ? "#bdc47e" : "#92c4ad");
-    this.rect(x + 19, y - 6, 8, 1, "#e6e9b4");
-    this.rect(x + 19, y - 3, 14, 1, "#e6e9b4");
-    this.rect(x + 24, y + 7, 5, 2, "#3d4538");
-    this.rect(x + 15, y + 11, 23, 5, "#eee5bd");
-    this.rect(x + 17, y + 12, 18, 1, "#8f9476");
-    this.rect(x + 5, y + 10, 5, 6, "#f5e3b6");
-    this.rect(x + 6, y + 10, 4, 2, "#a76c48");
-    this.rect(x + 18, y + 27, 16, 9, "#5d7467");
-    this.rect(x + 20, y + 26, 12, 3, "#81947a");
+  deliveryEffect(report, now) {
+    const el = document.createElement("span");
+    el.className = "delivery-number";
+    el.textContent = "▤ +1";
+    el.setAttribute("aria-hidden", "true");
+    document.getElementById("effects").append(el);
+    this.effects.push({ el, until: now + 2200 });
+    this.canvas.dispatchEvent(new CustomEvent("delivered", { detail: report }));
   }
-  plant(x, y) {
-    this.rect(x, y, 10, 10, "#aa724c");
-    this.rect(x - 1, y, 12, 3, "#dfac6a");
-    this.rect(x + 4, y - 14, 2, 16, "#456147");
-    this.rect(x - 4, y - 10, 9, 7, "#65835a");
-    this.rect(x + 5, y - 16, 9, 8, "#82a267");
-    this.rect(x - 2, y - 15, 6, 5, "#9db579");
+  // 한 프레임이 늦어져도 경과 시간만큼 여러 경로 지점을 이동한다.
+  // 큰 시간 점프가 있더라도 이동 예산을 버리거나 테스트 전용 속도를 쓰지 않는다.
+  move(p, dt) {
+    let budget = dt * 44;
+    while (p.path.length && budget > 0) {
+      const next = p.path[0],
+        dx = next[0] - p.x,
+        dy = next[1] - p.y;
+      const distance = Math.hypot(dx, dy);
+      if (distance > 0.01)
+        p.direction =
+          Math.abs(dx) > Math.abs(dy)
+            ? dx > 0
+              ? "east"
+              : "west"
+            : dy > 0
+              ? "south"
+              : "north";
+      if (distance <= budget) {
+        [p.x, p.y] = next;
+        budget -= distance;
+        p.path.shift();
+      } else {
+        p.x += (dx / distance) * budget;
+        p.y += (dy / distance) * budget;
+        budget = 0;
+      }
+    }
+    p.moving = p.path.length > 0;
+    return budget / 44;
   }
-  room() {
-    const l = this.layout,
-      w = l.width,
-      h = l.height;
-    this.ctx.clearRect(0, 0, w, h);
-    this.rect(2, 12, w - 4, h - 12, "#23382e");
-    this.rect(6, 10, w - 12, h - 18, "#776745");
-    this.rect(8, 12, w - 16, h - 24, "#e9cc95");
-    this.rect(8, 12, w - 16, 44, "#e5d3a5");
-    this.rect(8, 12, w - 16, 4, "#a49770");
-    for (let y = 60; y < h - 10; y += 12) {
-      this.rect(8, y, w - 16, 1, "#c7a779");
-      for (let x = 8 + (y % 24 ? 0 : 20); x < w - 8; x += 40)
-        this.rect(x, y, 1, Math.min(12, h - 12 - y), "#d7b785");
+  drawPerson(p, job, now) {
+    const animated = !this.reducedMotion.matches;
+    const working = ["coding", "designing", "writing"].includes(p.state);
+    const pose =
+      job && job.phase !== "back"
+        ? "carry"
+        : p.moving
+          ? "walk"
+          : working
+            ? "typing"
+            : "stand";
+    const frame = animated ? Math.floor(now / (p.moving ? 180 : 340)) % 2 : 0;
+    const sprite = employeeSprite(p.id, pose, p.direction, frame);
+    this.ctx.drawImage(sprite, Math.round(p.x - 10), Math.round(p.y - 28));
+    if (p.focused) {
+      const phase = animated ? Math.floor(now / 160) % 4 : 1;
+      for (const [offset, index] of [
+        [-13, 0],
+        [13, 1],
+        [-9, 2],
+        [9, 3],
+      ]) {
+        const y = p.y - 14 - ((phase + index) % 4) * 5;
+        this.art.rect(p.x + offset, y, 2, 4, palette.red);
+        this.art.rect(
+          p.x + offset,
+          y,
+          1,
+          2,
+          index % 2 ? palette.lime : palette.pink,
+        );
+        this.art.rect(p.x + offset - 1, y + 2, 4, 1, "#f1ba5f");
+      }
     }
-    this.rect(8, 54, w - 16, 5, "#9b885f");
-    this.rect(8, 54, w - 16, 2, "#c6b182");
-    for (const [x, y, ww, hh] of l.windows) {
-      this.rect(x - 2, y - 2, ww + 4, hh + 4, "#887956");
-      this.rect(x, y, ww, hh, "#f0e5bc");
-      this.rect(x + 3, y + 3, ww - 6, hh - 6, "#90bdb0");
-      this.rect(x + 7, y + 5, 15, hh - 9, "#bed9c2");
-      this.rect(x + ww / 2 - 1, y, 3, hh, "#f7ebc4");
-      this.rect(x - 3, y + hh, ww + 6, 3, "#bba26d");
+    if (p.state === "blocked" && !p.moving) {
+      this.art.rect(p.x + 12, p.y - 28, 2, 6, palette.red);
+      this.art.rect(p.x + 12, p.y - 20, 2, 2, palette.red);
     }
-    const [bx, by, bw, bh] = l.board;
-    this.rect(bx, by, bw, bh, "#745b40");
-    this.rect(bx + 2, by + 2, bw - 4, bh - 4, "#ac9468");
-    for (const offset of [5, Math.floor(bw / 2)]) {
-      this.rect(bx + offset, by + 5, 14, bh - 10, "#eee3b6");
-      this.rect(bx + offset + 5, by + 4, 3, 3, "#b8714a");
-      this.rect(bx + offset + 3, by + 10, 8, 1, "#a29671");
-      this.rect(bx + offset + 3, by + 13, 6, 1, "#a29671");
+    if (job?.phase === "drop") {
+      const distance = job.hold * 14;
+      this.art.rect(
+        p.x + 8 + distance,
+        p.y - 17 - distance,
+        7,
+        9,
+        palette.outline,
+      );
+      this.art.rect(
+        p.x + 9 + distance,
+        p.y - 17 - distance,
+        5,
+        8,
+        palette.white,
+      );
+      this.art.rect(
+        p.x + 10 + distance,
+        p.y - 15 - distance,
+        3,
+        1,
+        palette.navy,
+      );
     }
-    for (const [id, [x, y]] of Object.entries(l.desks)) this.desk(x, y, id);
-    const [ix, iy, iw, ih] = l.inbox;
-    this.rect(ix + 2, iy + 4, iw, ih, "#6f5740");
-    this.rect(ix, iy, iw, ih, "#b08a57");
-    this.rect(ix + 2, iy + 2, iw - 4, ih - 4, "#cfb077");
-    for (const row of [5, Math.floor(ih / 2) + 1]) {
-      this.rect(ix + 3, iy + row, iw - 6, ih / 2 - 5, "#bba06a");
-      this.rect(ix + iw / 2 - 4, iy + row + 4, 8, 2, "#665c42");
-    }
-    this.rect(ix, iy - 4, iw, 5, "#4f6753");
-    this.rect(ix + 4, iy - 8, iw - 8, 5, "#fff0c9");
-    this.rect(ix + 7, iy - 7, iw - 14, 1, "#c1b795");
-    const [mx, my, mw, mh] = l.meeting;
-    this.rect(mx + 2, my + 3, mw, mh, "#665e42");
-    this.rect(mx, my, mw, mh, "#839366");
-    this.rect(mx + 2, my + 2, mw - 4, mh - 4, "#b0bc84");
-    this.rect(mx + 8, my + 5, 14, 9, "#f3e5bb");
-    this.rect(mx + mw - 14, my + 5, 6, 6, "#cf9d66");
-    for (const [x, y] of l.plants) this.plant(x, y);
-    if (l === layouts.wide) {
-      this.rect(32, 159, 54, 24, "#586f59");
-      this.rect(35, 157, 48, 20, "#849779");
-      this.rect(38, 158, 20, 16, "#9caa86");
-      this.rect(60, 158, 20, 16, "#9caa86");
-      this.rect(30, 163, 6, 19, "#566d56");
-      this.rect(82, 163, 6, 19, "#566d56");
-    }
-    this.rect(l.exit[0] - 8, h - 11, 26, 7, "#9e9d77");
-    this.rect(l.exit[0] - 6, h - 10, 22, 1, "#d7c495");
   }
   frame(now) {
-    const dt = Math.min((now - this.last) / 1000, 0.06);
+    const dt = Math.max(0, (now - this.last) / 1000);
     this.last = now;
     if (!this.active && this.queue.length)
       this.active = { report: this.queue.shift(), phase: "out", hold: 0 };
-    this.room();
+    this.art.background(this.layout);
+    const drawing = this.art.items(this.layout);
     for (const p of Object.values(this.people)) {
       const job = this.active?.report.author === p.id ? this.active : null;
       const destination =
@@ -335,72 +375,66 @@ export class Office {
         p.target = target;
         p.path = this.route([p.x, p.y], destination);
       }
-      const next = p.path[0];
-      p.moving = Boolean(next);
-      if (next) {
-        const distance = Math.hypot(next[0] - p.x, next[1] - p.y),
-          step = Math.min(distance, dt * 44);
-        if (distance) {
-          p.x += ((next[0] - p.x) / distance) * step;
-          p.y += ((next[1] - p.y) / distance) * step;
-        }
-        if (distance <= step + 0.01) p.path.shift();
-      }
+      const remaining = this.move(p, dt);
       const arrived =
         !p.path.length &&
         Math.hypot(destination[0] - p.x, destination[1] - p.y) < 2;
       if (job && arrived) {
         if (job.phase === "out") job.phase = "drop";
         if (job.phase === "drop") {
-          job.hold += dt;
+          job.hold += remaining;
           if (job.hold > 1) {
             job.phase = "back";
-            this.canvas.dispatchEvent(
-              new CustomEvent("delivered", { detail: job.report }),
-            );
+            this.deliveryEffect(job.report, now);
           }
         } else if (job.phase === "back") this.active = null;
       }
+      p.focused =
+        ["coding", "designing"].includes(p.state) &&
+        !p.moving &&
+        !job &&
+        now - p.workSince >= config.focusAfterMs;
       const visible = p.state !== "offline" || Boolean(job) || p.moving;
       const actor = document.getElementById(`actor-${p.id}`);
       actor.hidden = !visible;
       actor.dataset.moving = String(p.moving || Boolean(job));
+      actor.dataset.focused = String(p.focused);
+      actor.dataset.pose =
+        job && job.phase !== "back"
+          ? "carry"
+          : p.moving
+            ? "walk"
+            : ["coding", "designing", "writing"].includes(p.state)
+              ? "typing"
+              : "stand";
+      actor.dataset.direction = p.direction;
       actor.style.left = `${p.x * this.scale}px`;
       actor.style.top = `${p.y * this.scale}px`;
-      actor.style.width = `${Math.max(32, 16 * this.scale)}px`;
-      actor.style.height = `${Math.max(32, 24 * this.scale)}px`;
-      if (!visible) continue;
-      const animated = !this.reducedMotion.matches;
-      const bob = p.moving && animated ? Math.floor(now / 160) % 2 : 0;
-      const image = this.sprites[p.id];
-      if (image.complete && image.naturalWidth)
-        this.ctx.drawImage(
-          image,
-          Math.round(p.x - 8),
-          Math.round(p.y - 24 - bob),
-          16,
-          24,
-        );
-      if (!p.moving && !job) {
-        const hand = animated ? Math.floor(now / 300) % 2 : 0;
-        if (["coding", "designing", "writing"].includes(p.state)) {
-          this.rect(p.x + 6, p.y - 12 + hand, 4, 3, "#f0cda3");
-          if (p.state === "designing")
-            this.rect(p.x + 9, p.y - 13, 5, 1, "#596c49");
-          if (p.state === "writing")
-            this.rect(p.x + 9, p.y - 12, 6, 7, "#fff0c9");
-        }
-        if (p.state === "blocked") {
-          this.rect(p.x + 11, p.y - 24, 3, 6, "#b55535");
-          this.rect(p.x + 11, p.y - 16, 3, 2, "#b55535");
-        }
-      }
-      if (job && job.phase !== "back") {
-        const drop = job.phase === "drop" ? job.hold * 12 : 0;
-        this.rect(p.x + 8 + drop, p.y - 14 - drop, 7, 9, "#fff9e8");
-        this.rect(p.x + 9 + drop, p.y - 12 - drop, 4, 1, "#9d9b83");
-      }
+      actor.style.width = `${Math.max(32, 20 * this.scale)}px`;
+      actor.style.height = `${Math.max(32, 28 * this.scale)}px`;
+      actor.style.setProperty("--work-bubble-offset", `${24 * this.scale}px`);
+      const reaction = p.reaction?.until > now ? p.reaction.text : null;
+      const short =
+        Array.from(p.message).slice(0, 9).join("") +
+        (Array.from(p.message).length > 9 ? "…" : "");
+      const message = actor.querySelector(".actor-message");
+      message.textContent = reaction || (p.focused ? "집중 중!" : short);
+      message.hidden = !message.textContent;
+      actor.dataset.reaction = String(Boolean(reaction));
+      if (visible)
+        drawing.push({ depth: p.y, draw: () => this.drawPerson(p, job, now) });
     }
+    drawing.sort((a, b) => a.depth - b.depth).forEach((item) => item.draw());
+    const [ix, iy, iw] = this.layout.inbox;
+    this.effects = this.effects.filter((effect) => {
+      if (now >= effect.until) {
+        effect.el.remove();
+        return false;
+      }
+      effect.el.style.left = `${(ix + iw / 2) * this.scale}px`;
+      effect.el.style.top = `${(iy - 12) * this.scale}px`;
+      return true;
+    });
     requestAnimationFrame((t) => this.frame(t));
   }
 }

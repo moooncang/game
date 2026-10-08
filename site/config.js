@@ -3,4 +3,5 @@ export const config = {
   repository: "moooncang/game",
   feedUrl: "./feed.json",
   pollInterval: 60_000,
+  focusAfterMs: 12_000,
 };

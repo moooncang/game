@@ -1,3 +1,4 @@
+import { employeePortrait } from "./office-art.js";
 import { config } from "./config.js";
 import { marked } from "./vendor/marked.esm.js";
 import DOMPurify from "./vendor/purify.es.mjs";
@@ -35,6 +36,7 @@ const demos = [];
 const office = new Office($("#office"));
 let selectedEmployee = null;
 let selectedReport = null;
+const approvals = new Map();
 function node(tag, text, className) {
   const el = document.createElement(tag);
   if (text !== undefined) el.textContent = text;
@@ -193,7 +195,7 @@ function renderEmployees() {
         `${id === "gpt" ? "GPT" : "Claude"} 사원 상태 열기`,
       );
       const img = node("img");
-      img.src = `./assets/${id}.svg`;
+      img.src = employeePortrait(id);
       img.alt = "";
       const info = node("span");
       info.append(node("span", id === "gpt" ? "GPT" : "Claude"), node("small"));
@@ -216,7 +218,7 @@ function renderEmployeeDetail(id) {
   $("#employee-title").textContent = `${name} · 사원 상태`;
   const portrait = node("div", undefined, "employee-portrait");
   const img = node("img");
-  img.src = `./assets/${id}.svg`;
+  img.src = employeePortrait(id);
   img.alt = "";
   portrait.append(img);
   const summary = node("div", undefined, "employee-summary");
@@ -270,6 +272,14 @@ function renderTasks() {
     );
     list.append(a);
   }
+  $("#task-count").textContent = feed.tasks.filter(
+    (task) => task.state === "open",
+  ).length;
+  $("#working-count").textContent = ["claude", "gpt"].filter(
+    (id) =>
+      feed.employees[id] &&
+      normalizeState(feed.employees[id].state) !== "offline",
+  ).length;
   if (!feed.tasks.length)
     list.append(node("p", "등록된 업무가 없습니다.", "empty"));
 }
@@ -312,6 +322,10 @@ async function load() {
       const id = String(report.id);
       if (initialized && !known.has(id) && !read.has(id))
         office.deliver(report);
+      const status = report.approval?.status;
+      if (approvals.has(id) && approvals.get(id) !== status)
+        office.react(report.author, status);
+      approvals.set(id, status);
       known.add(id);
     }
     initialized = true;

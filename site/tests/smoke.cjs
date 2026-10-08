@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const sample = JSON.parse(fs.readFileSync("site/feed.json", "utf8"));
 const base = "http://127.0.0.1:8000";
+const testFeedback = require("./feedback.cjs");
 
 (async () => {
   const browser = await chromium.launch({
@@ -19,6 +20,14 @@ const base = "http://127.0.0.1:8000";
     );
   const close = async (page, id) => {
     await page.locator(`#${id} [data-close]`).click();
+  };
+  const shortPolling = async (page) => {
+    const body = fs
+      .readFileSync("site/config.js", "utf8")
+      .replace("pollInterval: 60_000", "pollInterval: 500");
+    await page.route("**/config.js", (route) =>
+      route.fulfill({ contentType: "text/javascript", body }),
+    );
   };
   const noOverflow = async (page) =>
     assert(
@@ -132,6 +141,14 @@ const base = "http://127.0.0.1:8000";
     await page.reload();
     await loaded(page);
     assert.equal(await page.locator("#unread").textContent(), "1");
+    // 기본 60초 주기는 가상 시계 없이 실제 HTTP 재요청으로 확인한다.
+    const pollStarted = Date.now();
+    const defaultRefresh = page
+      .waitForResponse((response) => response.url().includes("/feed.json?"), {
+        timeout: 75_000,
+      })
+      .then(() => Date.now());
+    defaultRefresh.catch(() => {}); // 앞선 assertion 실패 시 브라우저 종료로 인한 부가 거부를 방지한다.
 
     for (const [width, height] of [
       [320, 568],
@@ -179,7 +196,13 @@ const base = "http://127.0.0.1:8000";
       { timeout: 15000 },
     );
 
-    // 저장소 차단, 마크다운 정화, 외부 링크 제한, 60초 갱신 및 실패 후 복구.
+    assert(
+      (await defaultRefresh) - pollStarted >= 58_000,
+      "기본 피드 주기는 60초여야 합니다.",
+    );
+    await page.close();
+
+    // 나머지 피드 반응은 짧은 주기와 실제 시계로 검사한다.
     const context = await browser.newContext();
     await context.addInitScript(() =>
       Object.defineProperty(window, "localStorage", {
@@ -190,7 +213,7 @@ const base = "http://127.0.0.1:8000";
     );
     const safe = await context.newPage();
     watch(safe);
-    await safe.clock.install();
+    await shortPolling(safe);
     const malicious = structuredClone(sample);
     malicious.reports[0].body_md =
       '<img src=x onerror="window.pwned=1"><script>window.pwned=1</script>[bad](javascript:alert(1))';
@@ -228,8 +251,6 @@ const base = "http://127.0.0.1:8000";
       title: "새 피드 서류",
       body_md: "새 서류",
     });
-    await safe.clock.fastForward(60_001);
-    await safe.clock.resume();
     await safe.waitForFunction(
       () => document.querySelectorAll(".report").length === 4,
     );
@@ -244,8 +265,6 @@ const base = "http://127.0.0.1:8000";
     await safe.route("**/feed.json?*", (route) =>
       route.fulfill({ status: 503, body: "unavailable" }),
     );
-    await safe.clock.fastForward(60_001);
-    await safe.clock.resume();
     await safe.waitForFunction(() =>
       document
         .querySelector("#notice")
@@ -255,20 +274,20 @@ const base = "http://127.0.0.1:8000";
     await safe.route("**/feed.json?*", (route) =>
       route.fulfill({ json: sample }),
     );
-    await safe.clock.fastForward(60_001);
-    await safe.clock.resume();
     await loaded(safe);
     assert.doesNotMatch(
       await safe.locator("#notice").textContent(),
       /불러오지 못했습니다/,
     );
 
+    await safe.close();
+
     // 처음부터 퇴근인 사원은 출구에서도 표시되지 않으며, 출근 후에는 이동한다.
     const statePage = await browser.newPage({
       viewport: { width: 390, height: 844 },
     });
     watch(statePage);
-    await statePage.clock.install();
+    await shortPolling(statePage);
     const stateFeed = structuredClone(sample);
     stateFeed.employees.gpt.state = "offline";
     await statePage.route("**/feed.json?*", (route) =>
@@ -286,8 +305,6 @@ const base = "http://127.0.0.1:8000";
     );
     await close(statePage, "employee-dialog");
     stateFeed.employees.gpt.state = "meeting";
-    await statePage.clock.fastForward(60_001);
-    await statePage.clock.resume();
     await statePage.waitForFunction(
       () => document.querySelector("#actor-gpt").dataset.state === "meeting",
     );
@@ -321,6 +338,8 @@ const base = "http://127.0.0.1:8000";
       );
     }
 
+    await statePage.close();
+
     // config.repository만 바꾸면 정적 탐색 링크도 함께 바뀐다.
     const configured = await browser.newPage();
     watch(configured);
@@ -342,9 +361,11 @@ const base = "http://127.0.0.1:8000";
         .getAttribute("href"),
       "https://github.com/example/studio/issues/new?template=task.yml",
     );
+    await configured.close();
+    await testFeedback(browser, watch, sample);
     assert.deepEqual(errors, []);
     console.log(
-      "PASS: 게임 HUD·맵 메뉴·키보드·결재함·필터·읽음·배달·모바일·상태 8종·초기 퇴근·설정 링크·XSS·저장소 차단·60초 갱신·오류 복구",
+      "PASS: 게임 HUD·맵 메뉴·키보드·결재함·필터·읽음·배달·모바일·상태 8종·초기 퇴근·설정 링크·XSS·저장소 차단·60초 갱신·오류 복구·집중·결재 반응·배달 숫자·스프라이트·프레임 독립 이동",
     );
   } finally {
     await browser.close();
