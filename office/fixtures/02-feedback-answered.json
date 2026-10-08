@@ -1,0 +1,79 @@
+{
+  "name": "02-feedback-answered",
+  "description": "피드백 → 같은 사원의 답변 서류 → answered, 피드백 closed",
+  "now": "2026-10-08T12:00:00Z",
+  "issues": [
+    {
+      "number": 5,
+      "title": "도트 개선",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    },
+    {
+      "number": 6,
+      "title": "v2 구현",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:00:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 5-1\n갈래: 색감\n종류: 작업보고\n제목: 팔레트\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 2,
+      "issue": 5,
+      "login": "moooncang",
+      "app": null,
+      "created_at": "2026-10-08T10:00:00Z",
+      "body": "/피드백 5-1 바닥이 너무 어두워요.\n한 단계 밝게."
+    },
+    {
+      "id": 3,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T11:00:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 5-2\n갈래: 색감\n종류: 작업보고\n제목: 바닥 밝게\n답변: 5-1\n\n## 한 일\n- 내용\n"
+    }
+  ],
+  "expected": {
+    "reports": [
+      {
+        "doc": "5-1",
+        "status": "answered",
+        "answered_by": "5-2",
+        "feedback": [
+          {
+            "type": "feedback",
+            "body_md": "바닥이 너무 어두워요.\n한 단계 밝게.",
+            "closed": true,
+            "resolved_by": "5-2"
+          }
+        ]
+      },
+      {
+        "doc": "5-2",
+        "status": "pending",
+        "answers": [
+          "5-1"
+        ]
+      }
+    ],
+    "employees": {
+      "gpt": {
+        "open_feedback": 0
+      }
+    },
+    "ignored_comment_ids": []
+  }
+}

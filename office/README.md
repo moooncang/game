@@ -146,6 +146,7 @@ PR: #6
 - 답변 서류는 **피드백보다 나중에 쓴 것**만 그 피드백을 처리합니다. (시간 순서대로 적용하면 자동으로 지켜짐)
 - 승인 뒤에 다시 `/피드백`이 오면 `feedback`으로 돌아갑니다.
 - 다른 사원이 `답변:`에 이 번호를 넣어도 처리로 보지 않습니다. (피드백은 그 서류를 쓴 사원만 처리)
+- 판정 기준표: 이 규칙들의 입력과 기대 결과 예시는 [`fixtures/`](fixtures/)에 있습니다. 피드 생성기는 이 예시를 모두 통과해야 합니다.
 - `open_feedback`(§5) = 그 사원이 쓴 서류들의 미처리 피드백 개수 합계
 
 ---
@@ -232,7 +233,8 @@ PR: #6
           "type": "feedback",                // feedback / approve / reject
           "body_md": "바닥이 너무 어두워요.",
           "at": "2026-10-07T11:55:00Z",
-          "resolved_by": null,               // 처리한 답변 서류 번호 (없으면 null)
+          "closed": false,                   // 닫힘 여부: 답변 서류로 처리됐거나 승인으로 닫히면 true. approve 기록은 항상 true
+          "resolved_by": null,               // 처리한 답변 서류 번호 (승인으로 닫혔거나 열려 있으면 null)
           "url": "https://github.com/moooncang/game/issues/2#issuecomment-..."
         }
       ],

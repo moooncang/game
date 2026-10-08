@@ -1,0 +1,297 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/moooncang/game/office/feed.schema.json",
+  "title": "회사 홈페이지 피드 (feed.json) v2",
+  "description": "office/README.md §5 참고",
+  "type": "object",
+  "required": [
+    "version",
+    "generated_at",
+    "repo",
+    "employees",
+    "tasks",
+    "reports"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "const": 2
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "repo": {
+      "type": "string"
+    },
+    "employees": {
+      "type": "object",
+      "required": [
+        "claude",
+        "gpt"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "claude": {
+          "type": "object",
+          "required": [
+            "name",
+            "state",
+            "message",
+            "task",
+            "updated_at",
+            "open_feedback"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "상태 코드. 모르는 값은 화면에서 idle로 처리"
+            },
+            "message": {
+              "type": "string"
+            },
+            "task": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "updated_at": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "open_feedback": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "gpt": {
+          "type": "object",
+          "required": [
+            "name",
+            "state",
+            "message",
+            "task",
+            "updated_at",
+            "open_feedback"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "상태 코드. 모르는 값은 화면에서 idle로 처리"
+            },
+            "message": {
+              "type": "string"
+            },
+            "task": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "updated_at": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "open_feedback": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "number",
+          "title",
+          "assignee",
+          "state",
+          "url"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "number": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "assignee": {
+            "enum": [
+              "claude",
+              "gpt",
+              null
+            ]
+          },
+          "state": {
+            "enum": [
+              "open",
+              "closed"
+            ]
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "reports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "doc",
+          "task",
+          "author",
+          "branch",
+          "kind",
+          "title",
+          "pr",
+          "answers",
+          "body_md",
+          "created_at",
+          "status",
+          "feedback",
+          "answered_by",
+          "url"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "doc": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^\\d+-\\d+$"
+          },
+          "task": {
+            "type": "integer"
+          },
+          "author": {
+            "enum": [
+              "claude",
+              "gpt"
+            ]
+          },
+          "branch": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "pr": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^\\d+-\\d+$"
+            }
+          },
+          "body_md": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "feedback",
+              "answered",
+              "approved"
+            ]
+          },
+          "feedback": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "type",
+                "body_md",
+                "at",
+                "closed",
+                "resolved_by",
+                "url"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "enum": [
+                    "feedback",
+                    "approve",
+                    "reject"
+                  ]
+                },
+                "body_md": {
+                  "type": "string"
+                },
+                "at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "closed": {
+                  "type": "boolean"
+                },
+                "resolved_by": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^\\d+-\\d+$"
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "answered_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^\\d+-\\d+$"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

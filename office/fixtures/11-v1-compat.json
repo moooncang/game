@@ -1,0 +1,78 @@
+{
+  "name": "11-v1-compat",
+  "description": "v1 서류(번호 없음)와 번호 없는 /승인·/반려는 그 Issue의 가장 최근 서류에 적용",
+  "now": "2026-10-08T12:00:00Z",
+  "issues": [
+    {
+      "number": 5,
+      "title": "도트 개선",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    },
+    {
+      "number": 6,
+      "title": "v2 구현",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    },
+    {
+      "number": 2,
+      "title": "화면 개편",
+      "state": "closed",
+      "labels": [
+        "담당:gpt"
+      ]
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "issue": 2,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:00:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n종류: 작업보고\n제목: v1 서류 A\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 2,
+      "issue": 2,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:05:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n종류: 작업보고\n제목: v1 서류 B\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 3,
+      "issue": 2,
+      "login": "moooncang",
+      "app": null,
+      "created_at": "2026-10-08T10:00:00Z",
+      "body": "/반려 이동 속도가 빨라요"
+    }
+  ],
+  "expected": {
+    "reports": [
+      {
+        "id": 1,
+        "doc": null,
+        "status": "pending"
+      },
+      {
+        "id": 2,
+        "doc": null,
+        "status": "feedback",
+        "feedback": [
+          {
+            "type": "reject",
+            "body_md": "이동 속도가 빨라요"
+          }
+        ]
+      }
+    ],
+    "ignored_comment_ids": []
+  }
+}

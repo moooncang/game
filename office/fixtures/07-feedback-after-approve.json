@@ -1,0 +1,63 @@
+{
+  "name": "07-feedback-after-approve",
+  "description": "승인 뒤 다시 피드백 → feedback",
+  "now": "2026-10-08T12:00:00Z",
+  "issues": [
+    {
+      "number": 5,
+      "title": "도트 개선",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    },
+    {
+      "number": 6,
+      "title": "v2 구현",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:00:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 5-1\n갈래: 색감\n종류: 작업보고\n제목: 팔레트\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 2,
+      "issue": 5,
+      "login": "moooncang",
+      "app": null,
+      "created_at": "2026-10-08T10:00:00Z",
+      "body": "/승인 5-1"
+    },
+    {
+      "id": 3,
+      "issue": 5,
+      "login": "moooncang",
+      "app": null,
+      "created_at": "2026-10-08T11:00:00Z",
+      "body": "/피드백 5-1 다시 보니 어두워요"
+    }
+  ],
+  "expected": {
+    "reports": [
+      {
+        "doc": "5-1",
+        "status": "feedback"
+      }
+    ],
+    "employees": {
+      "gpt": {
+        "open_feedback": 1
+      }
+    },
+    "ignored_comment_ids": []
+  }
+}

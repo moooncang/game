@@ -1,0 +1,62 @@
+{
+  "name": "03-feedback-open",
+  "description": "피드백만 있고 답변 없음 → feedback, open_feedback 1",
+  "now": "2026-10-08T12:00:00Z",
+  "issues": [
+    {
+      "number": 5,
+      "title": "도트 개선",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    },
+    {
+      "number": 6,
+      "title": "v2 구현",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:00:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 5-1\n갈래: 색감\n종류: 작업보고\n제목: 팔레트\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 2,
+      "issue": 5,
+      "login": "moooncang",
+      "app": null,
+      "created_at": "2026-10-08T10:00:00Z",
+      "body": "/피드백 5-1 더 밝게"
+    }
+  ],
+  "expected": {
+    "reports": [
+      {
+        "doc": "5-1",
+        "status": "feedback",
+        "feedback": [
+          {
+            "type": "feedback",
+            "closed": false,
+            "resolved_by": null
+          }
+        ]
+      }
+    ],
+    "employees": {
+      "gpt": {
+        "open_feedback": 1
+      }
+    },
+    "ignored_comment_ids": []
+  }
+}
