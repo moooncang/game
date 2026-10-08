@@ -28,6 +28,7 @@
 |---|---|
 | `unity/`, `site/`, `.github/workflows/`, `tools/` | `gpt` |
 | `AGENTS.md`, `CLAUDE.md`, `office/`, `docs/` | `claude` |
+| `docs/screenshots/` | 누구나 (PR 첨부용 스크린샷. `docs/screenshots/issue-<번호>/` 폴더에 추가) |
 | 그 밖의 파일 | 고치기 전에 Issue로 확인 |
 
 ## 3. 업무 흐름 (반드시 지킬 것)
