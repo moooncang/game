@@ -515,6 +515,7 @@ select {
 .status.approved {
   color: #a04637;
 }
+.status.feedback,
 .status.rejected {
   color: #3e647c;
 }
@@ -627,6 +628,7 @@ select {
   font-size: 20px;
   margin-top: 20px;
 }
+.stamp.feedback,
 .stamp.rejected {
   color: #416f96;
 }

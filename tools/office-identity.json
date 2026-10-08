@@ -1,0 +1,6 @@
+{
+  "owner": "moooncang",
+  "apps": { "claude": "claude", "chatgpt-codex-connector": "gpt" },
+  "bots": { "github-actions[bot]": "github-actions", "claude[bot]": "claude" },
+  "staleHours": 12
+}
