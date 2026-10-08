@@ -44,6 +44,32 @@ Settings → **Secrets and variables → Actions** → **New repository secret**
 
 - 버튼을 여러 번 눌러도 한 사원은 한 번에 하나씩만 일해요. 대기는 1개까지만 남고 나머지는 취소돼요.
 
+## 6. 결재 버튼 열쇠 등록 (한 번만)
+홈페이지 서류 창의 **[승인] [반려] [피드백]** 버튼을 쓰려면, 버튼이 사장님 대신 GitHub에 결재 댓글을 쓸 수 있도록 **열쇠**를 한 번 만들어 브라우저에 넣어야 해요.
+
+### 6-1. 열쇠 만들기 (GitHub)
+1. GitHub 오른쪽 위 프로필 사진 → **Settings**
+2. 왼쪽 맨 아래 **Developer settings** → **Personal access tokens** → **Fine-grained tokens** → **Generate new token**
+3. 이렇게 채워요.
+   | 항목 | 값 |
+   |---|---|
+   | Token name | `회사 홈페이지 결재 버튼` |
+   | Expiration | 90일 (만료되면 같은 방법으로 다시 만들어요) |
+   | Repository access | **Only select repositories** → `moooncang/game` **하나만** |
+   | Permissions → Repository permissions | **Issues: Read and write** **하나만** (Metadata는 자동으로 읽기가 붙어요) |
+4. **Generate token** → `github_pat_`로 시작하는 열쇠가 **한 번만** 보여요. 바로 복사하세요.
+
+### 6-2. 홈페이지에 등록
+1. 홈페이지 위쪽 상태창의 **[사장님 열쇠]** 버튼
+2. 복사한 열쇠를 붙여 넣고 **등록**
+3. 홈페이지가 열쇠 주인이 `moooncang`인지 확인한 뒤 "등록됨"으로 바뀌어요.
+
+### 6-3. 알아 두실 것
+- 열쇠는 **그 브라우저에만** 저장돼요. 휴대폰·다른 PC에서도 결재하려면 그 기기에서도 등록해야 해요.
+- 공용 PC에서는 쓰고 나서 **[사장님 열쇠] → 열쇠 지우기**를 눌러 주세요.
+- 열쇠를 잃어버렸거나 의심되면 6-1 화면에서 그 열쇠를 **Delete**하면 바로 못 쓰게 돼요.
+- 권한을 "Issues 쓰기"로만 줬기 때문에, 이 열쇠로는 코드 변경·머지·설정 변경을 할 수 없어요.
+
 ## ⚠️ 하지 말아야 할 것
-- **개인 액세스 토큰(PAT)을 AI에게 주거나 Secrets에 넣지 마세요.** 사장님 결재와 AI 댓글을 구분하는 장치가 깨져요. ([`office/README.md` §6](../../office/README.md#6-신원-확인-누가-쓴-댓글인가))
-- 결재·피드백은 **GitHub 웹에서 직접** 써 주세요. 모바일 앱으로 하실 거면 먼저 한 번 시험해 봐야 해요.
+- **개인 액세스 토큰(PAT)을 AI에게 주거나, 채팅에 붙여 넣거나, Secrets·파일에 넣지 마세요.** 사장님 결재와 AI 댓글을 구분하는 장치가 깨져요. PAT를 쓰는 곳은 **6번의 홈페이지 결재 버튼(사장님 브라우저)** 한 곳뿐이에요. ([`office/README.md` §6](../../office/README.md#6-신원-확인-누가-쓴-댓글인가))
+- 결재·피드백은 **홈페이지 결재 버튼** 또는 **GitHub 웹**에서 해 주세요. GitHub 모바일 앱으로 하실 거면 먼저 한 번 시험해 봐야 해요.

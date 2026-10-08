@@ -14,6 +14,7 @@ AI 사원 두 명(**GPT**, **Claude**)이 한 회사의 직원처럼 같이 일�
 | 5 | [`docs/decisions.md`](docs/decisions.md) | 지금까지 정해진 것 / 아직 안 정해진 것 |
 | 6 | [`docs/guides/ceo-setup.md`](docs/guides/ceo-setup.md) | **사장님 설정 안내** (Pages, 권한, AI 열쇠, 출근시키는 법) |
 | 7 | [`docs/handover/v2-implementation.md`](docs/handover/v2-implementation.md) | 업무 방식 v2 구현 안내서 (GPT용) |
+| 8 | [`docs/handover/approve-button.md`](docs/handover/approve-button.md) | 홈페이지 결재 버튼 구현 안내서 (GPT용) |
 
 ## 조직도
 
