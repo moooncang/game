@@ -227,20 +227,30 @@ export function buildFeed(
     const rest = c.body.slice(command[1].length + 1).trim();
     let targets,
       message = "";
+    // 번호를 잘못 쓴 말(예: 5-1번)은 엉뚱한 서류에 결재되지 않도록 막는다.
+    const typo = (word) => /^\d+-/.test(word) && !docPattern.test(word);
     if (type === "approve") {
-      targets = rest
-        ? rest.split(/\s+/).map((d) => docs.get(d))
-        : [latest.get(c.issue)];
+      // 첫 줄의 번호 모양만 번호로 읽고 나머지 말·다음 줄은 무시한다.
+      const words = c.body
+        .split("\n")[0]
+        .slice(command[1].length + 1)
+        .split(/\s+/)
+        .filter(Boolean);
+      const numbers = words.filter((word) => docPattern.test(word));
+      if (numbers.length) targets = numbers.map((d) => docs.get(d));
+      else if (words.some(typo)) targets = [];
+      else targets = [latest.get(c.issue)];
     } else {
       const match = /^(\S+)(?:\s+([\s\S]*))?$/.exec(rest);
       if (match && docPattern.test(match[1])) {
         targets = [docs.get(match[1])];
         message = match[2]?.trim() || "";
-      } else if (type === "reject" && match && !/^\d+-/.test(match[1])) {
+      } else if (type === "reject" && !(match && typo(match[1]))) {
         targets = [latest.get(c.issue)];
         message = rest;
       } else targets = [];
-      if (!message) targets = [];
+      // 반려는 사유를 생략할 수 있지만, 피드백은 고칠 내용이 있어야 한다.
+      if (type === "feedback" && !message) targets = [];
     }
     let applied = false;
     for (const target of new Set(targets)) {
