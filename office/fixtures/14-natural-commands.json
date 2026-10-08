@@ -1,0 +1,225 @@
+{
+  "name": "14-natural-commands",
+  "description": "사장님이 평소 말투로 쓴 명령: 번호 없는 /승인 + 한마디, 다음 줄 한마디, 사유 없는 /반려, 내용 없는 /피드백, 잘못 쓴 번호",
+  "now": "2026-10-08T12:00:00Z",
+  "issues": [
+    {
+      "number": 5,
+      "title": "업무 5",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    },
+    {
+      "number": 6,
+      "title": "업무 6",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    },
+    {
+      "number": 7,
+      "title": "업무 7",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    },
+    {
+      "number": 8,
+      "title": "업무 8",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:00:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 5-1\n갈래: 색감\n종류: 작업보고\n제목: a\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 2,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:01:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 5-2\n갈래: 색감\n종류: 작업보고\n제목: b\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 3,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:02:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 5-3\n갈래: 색감\n종류: 작업보고\n제목: c\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 4,
+      "issue": 5,
+      "login": "moooncang",
+      "app": null,
+      "created_at": "2026-10-08T10:00:00Z",
+      "body": "/승인 수고했어요"
+    },
+    {
+      "id": 5,
+      "issue": 5,
+      "login": "moooncang",
+      "app": null,
+      "created_at": "2026-10-08T10:01:00Z",
+      "body": "/승인 5-1 잘했어요"
+    },
+    {
+      "id": 6,
+      "issue": 5,
+      "login": "moooncang",
+      "app": null,
+      "created_at": "2026-10-08T10:02:00Z",
+      "body": "/반려 5-2"
+    },
+    {
+      "id": 7,
+      "issue": 5,
+      "login": "moooncang",
+      "app": null,
+      "created_at": "2026-10-08T10:03:00Z",
+      "body": "/피드백 5-2"
+    },
+    {
+      "id": 8,
+      "issue": 6,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:00:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 6-1\n갈래: 색감\n종류: 작업보고\n제목: d\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 9,
+      "issue": 6,
+      "login": "moooncang",
+      "app": null,
+      "created_at": "2026-10-08T10:00:00Z",
+      "body": "/승인\n좋네요, 다음에도 이렇게."
+    },
+    {
+      "id": 10,
+      "issue": 7,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:00:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 7-1\n갈래: 색감\n종류: 작업보고\n제목: e\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 11,
+      "issue": 7,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:01:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 7-2\n갈래: 색감\n종류: 작업보고\n제목: f\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 12,
+      "issue": 7,
+      "login": "moooncang",
+      "app": null,
+      "created_at": "2026-10-08T10:00:00Z",
+      "body": "/승인 7-1번"
+    },
+    {
+      "id": 13,
+      "issue": 7,
+      "login": "moooncang",
+      "app": null,
+      "created_at": "2026-10-08T10:01:00Z",
+      "body": "/반려 7-1번 다시"
+    },
+    {
+      "id": 14,
+      "issue": 8,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:00:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 8-1\n갈래: 색감\n종류: 작업보고\n제목: g\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 15,
+      "issue": 8,
+      "login": "moooncang",
+      "app": null,
+      "created_at": "2026-10-08T10:00:00Z",
+      "body": "/반려 3-4번 화면이 깨져요"
+    },
+    {
+      "id": 16,
+      "issue": 8,
+      "login": "moooncang",
+      "app": null,
+      "created_at": "2026-10-08T10:01:00Z",
+      "body": "/반려 8-1 3-4번 화면이 깨져요"
+    }
+  ],
+  "expected": {
+    "reports": [
+      {
+        "doc": "5-1",
+        "status": "approved"
+      },
+      {
+        "doc": "5-2",
+        "status": "feedback",
+        "feedback": [
+          {
+            "type": "reject",
+            "body_md": "",
+            "closed": false
+          }
+        ]
+      },
+      {
+        "doc": "5-3",
+        "status": "approved"
+      },
+      {
+        "doc": "6-1",
+        "status": "approved"
+      },
+      {
+        "doc": "7-1",
+        "status": "pending"
+      },
+      {
+        "doc": "7-2",
+        "status": "pending"
+      },
+      {
+        "doc": "8-1",
+        "status": "feedback",
+        "feedback": [
+          {
+            "type": "reject",
+            "body_md": "3-4번 화면이 깨져요"
+          }
+        ]
+      }
+    ],
+    "employees": {
+      "gpt": {
+        "open_feedback": 2
+      }
+    },
+    "ignored_comment_ids": [
+      7,
+      12,
+      13,
+      15
+    ]
+  }
+}
