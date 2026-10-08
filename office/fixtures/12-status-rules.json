@@ -1,0 +1,62 @@
+{
+  "name": "12-status-rules",
+  "description": "사원 상태: 모든 Issue 중 가장 최근 댓글, 12시간 넘으면 offline",
+  "now": "2026-10-08T13:00:00Z",
+  "issues": [
+    {
+      "number": 5,
+      "title": "도트 개선",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    },
+    {
+      "number": 6,
+      "title": "v2 구현",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "claude",
+      "created_at": "2026-10-08T00:30:00Z",
+      "body": "<!-- office:status -->\n사원: claude\n상태: reviewing\n메시지: 검수 중\n"
+    },
+    {
+      "id": 2,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:00:00Z",
+      "body": "<!-- office:status -->\n사원: gpt\n상태: coding\n메시지: 5번 작업\n"
+    },
+    {
+      "id": 3,
+      "issue": 6,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T10:00:00Z",
+      "body": "<!-- office:status -->\n사원: gpt\n상태: writing\n메시지: 6번 문서\n"
+    }
+  ],
+  "expected": {
+    "reports": [],
+    "employees": {
+      "gpt": {
+        "state": "writing",
+        "task": 6
+      },
+      "claude": {
+        "state": "offline"
+      }
+    },
+    "ignored_comment_ids": []
+  }
+}

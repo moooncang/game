@@ -1,88 +1,155 @@
 {
+  "version": 2,
   "generated_at": "2026-10-07T12:00:00Z",
   "repo": "moooncang/game",
   "employees": {
-    "claude": {
-      "name": "Claude",
-      "state": "coding",
-      "message": "플레이어 이동 스크립트 작성 중",
-      "task": 3,
-      "updated_at": "2026-10-07T11:58:00Z"
-    },
     "gpt": {
       "name": "GPT",
-      "state": "designing",
-      "message": "주인공 걷기 스프라이트 그리는 중",
+      "state": "coding",
+      "message": "5-2 피드백 반영 중 (바닥 색)",
       "task": 5,
-      "updated_at": "2026-10-07T11:40:00Z"
+      "updated_at": "2026-10-07T11:58:00Z",
+      "open_feedback": 1
+    },
+    "claude": {
+      "name": "Claude",
+      "state": "offline",
+      "message": "검수 완료, 퇴근",
+      "task": null,
+      "updated_at": "2026-10-07T10:20:00Z",
+      "open_feedback": 0
     }
   },
   "tasks": [
     {
       "number": 5,
-      "title": "주인공 걷기 스프라이트 4방향",
+      "title": "사무실 도트 디테일과 색감 개선",
       "assignee": "gpt",
       "state": "open",
       "url": "https://github.com/moooncang/game/issues/5"
     },
     {
-      "number": 3,
-      "title": "플레이어 이동 구현",
-      "assignee": "claude",
-      "state": "open",
-      "url": "https://github.com/moooncang/game/issues/3"
-    },
-    {
       "number": 2,
-      "title": "게임 세계관 초안",
+      "title": "홈페이지를 회사 운영 도트 게임 화면으로 개편",
       "assignee": "gpt",
       "state": "closed",
       "url": "https://github.com/moooncang/game/issues/2"
-    },
-    {
-      "number": 1,
-      "title": "유니티 프로젝트 기본 설정",
-      "assignee": "claude",
-      "state": "closed",
-      "url": "https://github.com/moooncang/game/issues/1"
     }
   ],
   "reports": [
     {
-      "id": 1000000004,
-      "task": 3,
-      "author": "claude",
-      "kind": "질문",
-      "title": "달리기 버튼 필요 여부",
-      "pr": null,
-      "body_md": "## 질문\n- 이동 구현 중인데 달리기(Shift) 기능도 넣을까요?\n- 넣는다면 걷기 속도의 1.6배를 제안합니다.",
-      "created_at": "2026-10-07T11:30:00Z",
-      "approval": { "status": "pending", "reason": null, "at": null },
-      "url": "https://github.com/moooncang/game/issues/3#issuecomment-1000000004"
-    },
-    {
-      "id": 1000000003,
-      "task": 2,
+      "id": 2000000007,
+      "doc": "5-5",
+      "task": 5,
       "author": "gpt",
-      "kind": "기획안",
-      "title": "세계관 초안: 별빛 우체국",
-      "pr": 6,
-      "body_md": "## 요약\n밤에만 열리는 우체국에서 별에게 편지를 배달하는 이야기.\n\n## 주요 인물\n- 주인공: 신입 배달부\n- 국장: 늙은 부엉이",
-      "created_at": "2026-10-06T15:00:00Z",
-      "approval": { "status": "approved", "reason": null, "at": "2026-10-06T18:20:00Z" },
-      "url": "https://github.com/moooncang/game/issues/2#issuecomment-1000000003"
+      "branch": "화면 구성",
+      "kind": "작업보고",
+      "title": "책장 위치 이동 (5-1 반려 반영)",
+      "pr": 9,
+      "answers": [
+        "5-1"
+      ],
+      "body_md": "## 한 일\n- 책장을 오른쪽 벽으로 옮겨 출구 확보",
+      "created_at": "2026-10-07T11:40:00Z",
+      "status": "pending",
+      "feedback": [],
+      "answered_by": null,
+      "url": "https://github.com/moooncang/game/issues/5#issuecomment-2000000007"
     },
     {
-      "id": 1000000002,
-      "task": 1,
+      "id": 2000000006,
+      "doc": "5-4",
+      "task": 5,
       "author": "claude",
+      "branch": "검수",
+      "kind": "검수결과",
+      "title": "PR #9 검수: 색감·연출 확인",
+      "pr": 9,
+      "answers": [],
+      "body_md": "## 검수 결과\n- 테스트 통과\n- 바닥 대비가 강해 글자가 묻히는 곳 1군데",
+      "created_at": "2026-10-07T10:15:00Z",
+      "status": "pending",
+      "feedback": [],
+      "answered_by": null,
+      "url": "https://github.com/moooncang/game/issues/5#issuecomment-2000000006"
+    },
+    {
+      "id": 2000000005,
+      "doc": "5-3",
+      "task": 5,
+      "author": "gpt",
+      "branch": "연출",
       "kind": "작업보고",
-      "title": "유니티 프로젝트 기본 설정 완료",
-      "pr": 4,
-      "body_md": "## 한 일\n- 2D URP 프로젝트 생성\n- 픽셀 퍼펙트 카메라 설정\n\n## 사장님 확인 사항\n- 에디터에서 프로젝트가 열리는지 확인해 주세요.",
-      "created_at": "2026-10-06T10:00:00Z",
-      "approval": { "status": "rejected", "reason": "PPU를 32로 맞춰 주세요.", "at": "2026-10-06T11:00:00Z" },
-      "url": "https://github.com/moooncang/game/issues/1#issuecomment-1000000002"
+      "title": "서류 제출 시 +1 숫자 연출 추가",
+      "pr": 9,
+      "answers": [],
+      "body_md": "## 한 일\n- 서류함 위로 📄 +1 이 떠오름",
+      "created_at": "2026-10-07T10:00:00Z",
+      "status": "approved",
+      "feedback": [
+        {
+          "type": "approve",
+          "body_md": "",
+          "at": "2026-10-07T11:00:00Z",
+          "closed": true,
+          "resolved_by": null,
+          "url": "https://github.com/moooncang/game/issues/5#issuecomment-3000000003"
+        }
+      ],
+      "answered_by": null,
+      "url": "https://github.com/moooncang/game/issues/5#issuecomment-2000000005"
+    },
+    {
+      "id": 2000000004,
+      "doc": "5-2",
+      "task": 5,
+      "author": "gpt",
+      "branch": "색감",
+      "kind": "작업보고",
+      "title": "진한 나무 바닥 + 크림 벽 팔레트 적용",
+      "pr": 9,
+      "answers": [],
+      "body_md": "## 한 일\n- 바닥 #7a583d, 벽 #eae9db\n- 가구 외곽선 #241e20",
+      "created_at": "2026-10-07T09:55:00Z",
+      "status": "feedback",
+      "feedback": [
+        {
+          "type": "feedback",
+          "body_md": "바닥이 너무 어두워요. 한 단계 밝게 해 주세요.",
+          "at": "2026-10-07T11:02:00Z",
+          "closed": false,
+          "resolved_by": null,
+          "url": "https://github.com/moooncang/game/issues/5#issuecomment-3000000004"
+        }
+      ],
+      "answered_by": null,
+      "url": "https://github.com/moooncang/game/issues/5#issuecomment-2000000004"
+    },
+    {
+      "id": 2000000003,
+      "doc": "5-1",
+      "task": 5,
+      "author": "gpt",
+      "branch": "화면 구성",
+      "kind": "작업보고",
+      "title": "3/4 시점 가구와 소품 추가",
+      "pr": 9,
+      "answers": [],
+      "body_md": "## 한 일\n- 자판기, 책장, 화이트보드 추가\n- 책상 앞면·윗면 분리",
+      "created_at": "2026-10-07T09:50:00Z",
+      "status": "answered",
+      "feedback": [
+        {
+          "type": "reject",
+          "body_md": "책장이 출구를 막아요.",
+          "at": "2026-10-07T10:30:00Z",
+          "closed": true,
+          "resolved_by": "5-5",
+          "url": "https://github.com/moooncang/game/issues/5#issuecomment-3000000002"
+        }
+      ],
+      "answered_by": "5-5",
+      "url": "https://github.com/moooncang/game/issues/5#issuecomment-2000000003"
     }
   ]
 }

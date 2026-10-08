@@ -1,0 +1,103 @@
+{
+  "name": "09-identity",
+  "description": "신원 확인: 사원 앱의 명령·외부인 댓글·사원 값 불일치·사장님이 쓴 서류는 무시",
+  "now": "2026-10-08T12:00:00Z",
+  "issues": [
+    {
+      "number": 5,
+      "title": "도트 개선",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    },
+    {
+      "number": 6,
+      "title": "v2 구현",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:00:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 5-1\n갈래: 색감\n종류: 작업보고\n제목: 팔레트\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 2,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:10:00Z",
+      "body": "/승인 5-1"
+    },
+    {
+      "id": 3,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "claude",
+      "created_at": "2026-10-08T09:11:00Z",
+      "body": "/승인 5-1"
+    },
+    {
+      "id": 4,
+      "issue": 5,
+      "login": "stranger",
+      "app": null,
+      "created_at": "2026-10-08T09:12:00Z",
+      "body": "/승인 5-1"
+    },
+    {
+      "id": 5,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "claude",
+      "created_at": "2026-10-08T09:13:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 5-2\n갈래: 색감\n종류: 작업보고\n제목: 사칭\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 6,
+      "issue": 5,
+      "login": "moooncang",
+      "app": null,
+      "created_at": "2026-10-08T09:14:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 5-3\n갈래: 색감\n종류: 작업보고\n제목: 사장님이 쓴 서류\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 7,
+      "issue": 5,
+      "login": "stranger",
+      "app": null,
+      "created_at": "2026-10-08T09:15:00Z",
+      "body": "<!-- office:status -->\n사원: gpt\n상태: coding\n메시지: 외부인 상태\n"
+    }
+  ],
+  "expected": {
+    "reports": [
+      {
+        "doc": "5-1",
+        "status": "pending",
+        "feedback": []
+      }
+    ],
+    "employees": {
+      "gpt": {
+        "state": "offline"
+      }
+    },
+    "ignored_comment_ids": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ]
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "name": "10-doc-number-rules",
+  "description": "문서 번호: 중복은 먼저 쓴 것만, Issue 번호 불일치·갈래 누락 버림, 다른 Issue의 명령 무시",
+  "now": "2026-10-08T12:00:00Z",
+  "issues": [
+    {
+      "number": 5,
+      "title": "도트 개선",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    },
+    {
+      "number": 6,
+      "title": "v2 구현",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:00:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 5-1\n갈래: 색감\n종류: 작업보고\n제목: 원본\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 2,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:01:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 5-1\n갈래: 색감\n종류: 작업보고\n제목: 중복\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 3,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:02:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 6-1\n갈래: 색감\n종류: 작업보고\n제목: 엉뚱한 Issue\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 4,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:03:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 5-2\n종류: 작업보고\n제목: 갈래 없음\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 5,
+      "issue": 6,
+      "login": "moooncang",
+      "app": null,
+      "created_at": "2026-10-08T10:00:00Z",
+      "body": "/피드백 5-1 다른 Issue에서 씀"
+    }
+  ],
+  "expected": {
+    "reports": [
+      {
+        "doc": "5-1",
+        "title": "원본",
+        "status": "pending"
+      }
+    ],
+    "ignored_comment_ids": [
+      2,
+      3,
+      4,
+      5
+    ]
+  }
+}

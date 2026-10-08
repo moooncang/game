@@ -1,0 +1,87 @@
+{
+  "name": "01-basic-reports",
+  "description": "갈래별 서류 2장 제출, 사장님 반응 없음 → 둘 다 pending",
+  "now": "2026-10-08T12:00:00Z",
+  "issues": [
+    {
+      "number": 5,
+      "title": "도트 개선",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    },
+    {
+      "number": 6,
+      "title": "v2 구현",
+      "state": "open",
+      "labels": [
+        "담당:gpt"
+      ]
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:00:00Z",
+      "body": "<!-- office:status -->\n사원: gpt\n상태: designing\n메시지: 작업 중\n"
+    },
+    {
+      "id": 2,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:10:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 5-1\n갈래: 화면 구성\n종류: 작업보고\n제목: 가구 추가\nPR: #7\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 3,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:11:00Z",
+      "body": "<!-- office:report -->\n사원: gpt\n번호: 5-2\n갈래: 색감\n종류: 작업보고\n제목: 팔레트 변경\nPR: #7\n\n## 한 일\n- 내용\n"
+    },
+    {
+      "id": 4,
+      "issue": 5,
+      "login": "moooncang",
+      "app": "chatgpt-codex-connector",
+      "created_at": "2026-10-08T09:12:00Z",
+      "body": "<!-- office:status -->\n사원: gpt\n상태: idle\n메시지: 제출 완료\n"
+    }
+  ],
+  "expected": {
+    "reports": [
+      {
+        "doc": "5-1",
+        "author": "gpt",
+        "branch": "화면 구성",
+        "pr": 7,
+        "status": "pending",
+        "feedback": []
+      },
+      {
+        "doc": "5-2",
+        "author": "gpt",
+        "branch": "색감",
+        "status": "pending"
+      }
+    ],
+    "employees": {
+      "gpt": {
+        "state": "idle",
+        "task": 5,
+        "open_feedback": 0
+      },
+      "claude": {
+        "state": "offline",
+        "open_feedback": 0
+      }
+    },
+    "ignored_comment_ids": []
+  }
+}

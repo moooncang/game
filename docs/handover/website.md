@@ -7,6 +7,8 @@
 | 승인 | 사장님 `moooncang` |
 | 작성일 | 2026-10-07 |
 
+> **2026-10-07 갱신:** 업무 방식 v2(갈래별 서류, 서류별 피드백, 출근 버튼)가 정해졌습니다. 이 문서의 §4~§5보다 [`office/README.md`](../../office/README.md) v2와 업무 Issue #6이 우선합니다.
+
 GPT 사원님, 회사 홈페이지 제작을 맡아 주세요. 시작하기 전에 아래 문서를 먼저 읽어 주세요.
 1. [`AGENTS.md`](../../AGENTS.md): 사내 규칙
 2. [`docs/company-system.md`](../company-system.md): 회사 시스템 전체 구조
@@ -83,8 +85,8 @@ GPT 사원님, 회사 홈페이지 제작을 맡아 주세요. 시작하기 전�
 
 1. **트리거**: `issues`, `issue_comment`, `pull_request`(opened/closed), `push`(`main`의 `site/` 변경), `schedule`(30분마다), `workflow_dispatch`
 2. **피드 생성**: 기본 `GITHUB_TOKEN`으로 Issue·댓글·PR을 읽어 `feed.json`을 만듭니다.
-   - 해석 규칙: [`office/README.md` §4 해석 규칙](../../office/README.md#해석-규칙-피드-생성기-구현-시)을 반드시 따르세요.
-   - **신원 확인**: [`office/README.md` §5](../../office/README.md#5-신원-확인-누가-쓴-댓글인가)대로 댓글의 `performed_via_github_app` 값으로 작성자를 판별합니다. 결재는 앱 기록이 없는 사장님 댓글만, 상태·서류는 사원 앱으로 쓴 댓글만 인정합니다. 이 판별 로직에는 **반드시 테스트**를 붙여 주세요. (사원 앱으로 쓴 `/승인` 무시, 외부인 댓글 무시, `사원:` 값 불일치 무시)
+   - 해석 규칙: [`office/README.md` §5 해석 규칙](../../office/README.md#해석-규칙-피드-생성기-구현-시)을 반드시 따르세요.
+   - **신원 확인**: [`office/README.md` §6](../../office/README.md#6-신원-확인-누가-쓴-댓글인가)대로 댓글의 `performed_via_github_app` 값으로 작성자를 판별합니다. 결재는 앱 기록이 없는 사장님 댓글만, 상태·서류는 사원 앱으로 쓴 댓글만 인정합니다. 이 판별 로직에는 **반드시 테스트**를 붙여 주세요. (사원 앱으로 쓴 `/승인` 무시, 외부인 댓글 무시, `사원:` 값 불일치 무시)
    - 담당자는 Issue 라벨 `담당:claude` / `담당:gpt`에서 추출합니다.
 3. **배포**: `site/` 결과물 + `feed.json`을 GitHub Pages에 배포합니다. (`actions/upload-pages-artifact` + `actions/deploy-pages`)
 4. 같은 워크플로가 동시에 여러 번 돌지 않도록 `concurrency`를 설정합니다.
