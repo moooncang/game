@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width,initial-scale=1,viewport-fit=cover"
     />
-    <meta name="theme-color" content="#263c36" />
+    <meta name="theme-color" content="#413733" />
     <title>작은 도트 회사</title>
     <link
       rel="preload"
@@ -25,6 +25,16 @@
           <div>
             <h1 data-company>작은 도트 회사</h1>
             <span class="version">OFFICE · 샘플 모드</span>
+          </div>
+        </div>
+        <div class="hud-resources" aria-label="업무 및 근무 현황">
+          <div class="hud-resource">
+            <span class="disk-icon" aria-hidden="true"></span
+            ><span>진행 업무</span><strong id="task-count">0</strong>
+          </div>
+          <div class="hud-resource">
+            <span class="people-icon" aria-hidden="true"></span><span>근무</span
+            ><strong id="working-count">0</strong>
           </div>
         </div>
         <div class="hud-clock">
@@ -62,7 +72,9 @@
             data-open="inbox-dialog"
             aria-label="서류함 열기"
           >
-            <span class="object-label">서류함 <b id="scene-count">0</b></span>
+            <span class="object-label"
+              >서류함 · 안 읽음 <b id="scene-count">0</b></span
+            >
           </button>
           <button
             id="scene-board"
@@ -73,6 +85,7 @@
             <span class="object-label">업무 게시판</span>
           </button>
           <div id="actors"></div>
+          <div id="effects" aria-hidden="true"></div>
         </div>
         <span class="map-coordinate" aria-hidden="true">1F · OFFICE</span>
       </section>
@@ -89,8 +102,12 @@
           >
         </div>
         <nav class="commands" aria-label="사무실 메뉴">
-          <button class="pixel-button" data-open="inbox-dialog">
-            <span aria-hidden="true">▤</span> 결재함 <b id="unread">0</b>
+          <button
+            class="pixel-button"
+            data-open="inbox-dialog"
+            aria-label="결재함 열기"
+          >
+            <span aria-hidden="true">▤</span> 안 읽음 <b id="unread">0</b>
           </button>
           <button class="pixel-button" data-open="tasks-dialog">
             <span aria-hidden="true">▦</span> 업무 게시판
