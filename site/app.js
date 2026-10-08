@@ -18,6 +18,8 @@ const approvalLabels = {
   pending: "결재 대기",
   approved: "승인",
   rejected: "반려",
+  feedback: "피드백 있음",
+  answered: "반영 완료",
 };
 const storageKey = "dot-office:read:v1";
 let read;
@@ -132,7 +134,11 @@ function openReport(r) {
     `${r.author === "gpt" ? "GPT" : "Claude"} / ${r.kind} / ${date(r.created_at)}`;
   const approval = $("#approval");
   approval.replaceChildren();
-  if (["approved", "rejected"].includes(r.approval?.status))
+  if (
+    ["approved", "rejected", "feedback", "answered"].includes(
+      r.approval?.status,
+    )
+  )
     approval.append(
       node(
         "span",
@@ -140,7 +146,10 @@ function openReport(r) {
         `stamp ${r.approval.status}`,
       ),
     );
-  if (r.approval?.status === "rejected" && r.approval.reason)
+  if (
+    ["rejected", "feedback"].includes(r.approval?.status) &&
+    r.approval.reason
+  )
     approval.append(node("p", r.approval.reason, "reason"));
   $("#report-body").innerHTML = DOMPurify.sanitize(
     marked.parse(String(r.body_md || "")),
@@ -316,6 +325,19 @@ async function load() {
       !Array.isArray(next.tasks)
     )
       throw Error("잘못된 피드 형식");
+    // PR-B의 상세 피드백 UI 전까지 v1 화면에서도 v2 상태를 정확히 표시한다.
+    if (next.version === 2) {
+      next.reports = next.reports.map((report) => ({
+        ...report,
+        approval: {
+          status: report.status,
+          reason: (report.feedback || [])
+            .filter((entry) => !entry.closed)
+            .map((entry) => entry.body_md)
+            .join("\n"),
+        },
+      }));
+    }
     feed = next;
     office.update(feed.employees);
     for (const report of feed.reports) {
@@ -334,7 +356,12 @@ async function load() {
     renderTasks();
     updateTime();
     $("#demo").disabled = false;
-    $("#notice").textContent = "샘플 모드 · 물건이나 사원을 선택하세요.";
+    const live = feed.version === 2;
+    $(".version").textContent = live
+      ? "OFFICE · 업무 현황"
+      : "OFFICE · 샘플 모드";
+    $("#notice").textContent =
+      `${live ? "업무 현황" : "샘플 모드"} · 물건이나 사원을 선택하세요.`;
   } catch (error) {
     $("#notice").textContent =
       `데이터를 불러오지 못했습니다. 60초 후 다시 시도합니다. (${error.message})`;
