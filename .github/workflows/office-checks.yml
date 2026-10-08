@@ -20,3 +20,22 @@ jobs:
           cache-dependency-path: tools/package-lock.json
       - run: npm ci --prefix tools --ignore-scripts --no-audit --no-fund
       - run: npm test --prefix tools
+      - name: 결재 모듈 검사
+        run: node site/tests/office-approve.check.mjs
+      - name: Chromium 설치
+        run: tools/node_modules/.bin/playwright install --with-deps chromium
+      - name: 홈페이지 브라우저 회귀 검사
+        shell: bash
+        run: |
+          export NODE_PATH="$PWD/tools/node_modules"
+          export CHROMIUM_PATH="$(node -p 'require("playwright").chromium.executablePath()')"
+          python3 -m http.server 8000 --bind 127.0.0.1 --directory site > /tmp/office-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8000/ > /dev/null; then break; fi
+            sleep 1
+          done
+          node site/tests/smoke.cjs
+          node site/tests/feed-v2.cjs
+          node site/tests/decisions.cjs

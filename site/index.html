@@ -3,6 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; connect-src 'self' https://api.github.com; img-src 'self' data:; style-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <meta
       name="viewport"
       content="width=device-width,initial-scale=1,viewport-fit=cover"
     />
@@ -43,6 +47,9 @@
         <button class="hud-inbox pixel-button" data-open="inbox-dialog">
           <span class="paper-icon" aria-hidden="true"></span>결재 대기
           <strong id="pending-count">0</strong>
+        </button>
+        <button id="open-key" class="pixel-button key-button">
+          사장님 열쇠 <small id="key-status">미등록</small>
         </button>
         <a
           class="repo-link pixel-button"
@@ -116,6 +123,42 @@
             <span aria-hidden="true">▱</span> 배달 테스트
           </button>
         </nav>
+        <details class="attendance">
+          <summary>사원 출근</summary>
+          <div class="attendance-links">
+            <a
+              class="pixel-button"
+              data-repo-link="/actions/workflows/office-start.yml"
+              target="_blank"
+              rel="noopener noreferrer"
+              >GPT 출근</a
+            >
+            <a
+              class="pixel-button"
+              data-repo-link="/actions/workflows/office-start.yml"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Claude 출근</a
+            >
+            <a
+              class="pixel-button"
+              data-repo-link="/actions/workflows/office-start.yml"
+              target="_blank"
+              rel="noopener noreferrer"
+              >전원 출근</a
+            >
+          </div>
+          <p>
+            GitHub에서 Run workflow를 열고 employee를 gpt / claude / all 중
+            선택하세요. 버튼으로 값을 미리 선택할 수 없습니다. 전원 출근은
+            sequential(GPT → Claude)이 기본이며 parallel로 동시 출근을 고를 수
+            있습니다.
+          </p>
+          <p>
+            사원마다 한 번만 일하며 실행 중 1건과 대기 1건을 유지합니다. 다시
+            누르면 이전 대기는 교체됩니다. 출근 기능은 다음 단계에서 연결됩니다.
+          </p>
+        </details>
         <p id="notice" role="status" aria-live="polite">
           피드를 불러오는 중입니다.
         </p>
@@ -156,7 +199,7 @@
         </div>
       </div>
       <div class="window-footer">
-        결재는 서류 안의 GitHub 링크에서 진행합니다.
+        서류를 열어 피드백 이력을 확인하고 결재하세요.
       </div>
     </dialog>
 
@@ -214,7 +257,71 @@
         <h2 id="report-title"></h2>
         <div id="approval"></div>
         <article id="report-body"></article>
+        <section
+          id="report-relations"
+          class="report-section"
+          aria-label="연결된 서류"
+        ></section>
+        <section class="report-section" id="history-section">
+          <h3>피드백·결재 기록</h3>
+          <ol id="report-history"></ol>
+        </section>
+        <section class="report-section" aria-labelledby="decision-heading">
+          <h3 id="decision-heading">사장님 결재</h3>
+          <p id="decision-help" class="small-label"></p>
+          <div id="decision-controls">
+            <div class="decision-buttons">
+              <button class="pixel-button" data-decision="approve">승인</button>
+              <button class="pixel-button" data-decision="reject">반려</button>
+              <button class="pixel-button" data-decision="feedback">
+                피드백
+              </button>
+            </div>
+            <div id="decision-editor" hidden>
+              <label id="decision-label" for="decision-text">피드백 내용</label>
+              <textarea id="decision-text" rows="3"></textarea>
+              <p class="small-label">올라갈 댓글</p>
+              <pre id="decision-preview"></pre>
+              <button id="decision-submit" class="pixel-button">보내기</button>
+              <button id="decision-cancel" class="pixel-button">취소</button>
+            </div>
+          </div>
+          <p id="decision-pending" role="status"></p>
+          <p id="decision-message" role="status"></p>
+        </section>
         <div id="report-links" class="report-links"></div>
+      </div>
+    </dialog>
+    <dialog id="key-dialog" class="game-window" aria-labelledby="key-title">
+      <div class="window-bar">
+        <h2 id="key-title">사장님 열쇠</h2>
+        <button class="close-button" data-close aria-label="열쇠 창 닫기">
+          ×
+        </button>
+      </div>
+      <div class="window-content">
+        <p>
+          이 브라우저에서 결재할 사장님 열쇠를 등록하세요. 열쇠는 이
+          브라우저에만 저장됩니다.
+        </p>
+        <label for="key-input">세분화된 토큰</label>
+        <input
+          id="key-input"
+          type="password"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <div class="decision-buttons">
+          <button id="key-register" class="pixel-button">등록</button
+          ><button id="key-clear" class="pixel-button">열쇠 지우기</button>
+        </div>
+        <p id="key-message" role="status"></p>
+        <a
+          data-repo-link="/blob/main/docs/guides/ceo-setup.md#6-결재-버튼-열쇠-등록-한-번만"
+          target="_blank"
+          rel="noopener noreferrer"
+          >열쇠 등록 안내 ↗</a
+        >
       </div>
     </dialog>
     <script type="module" src="app.js"></script>

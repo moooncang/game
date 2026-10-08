@@ -1,3 +1,4 @@
+import { renderDecisions, syncDecisions } from "./decision-ui.js";
 import { employeePortrait } from "./office-art.js";
 import { config } from "./config.js";
 import { marked } from "./vendor/marked.esm.js";
@@ -39,6 +40,25 @@ const office = new Office($("#office"));
 let selectedEmployee = null;
 let selectedReport = null;
 const approvals = new Map();
+function reportStatus(report) {
+  return report.status || report.approval?.status || "pending";
+}
+function reaction(report) {
+  if (!report.status)
+    return { key: report.approval?.status, status: report.approval?.status };
+  const entry = [...(report.feedback || [])]
+    .reverse()
+    .find((f) => ["approve", "reject"].includes(f.type));
+  return {
+    key: entry ? JSON.stringify([entry.type, entry.at, entry.url]) : null,
+    status:
+      entry?.type === "approve"
+        ? "approved"
+        : entry?.type === "reject"
+          ? "rejected"
+          : null,
+  };
+}
 function node(tag, text, className) {
   const el = document.createElement(tag);
   if (text !== undefined) el.textContent = text;
@@ -81,7 +101,7 @@ function unreadCount() {
   $("#unread").textContent = n;
   $("#scene-count").textContent = n;
   $("#pending-count").textContent = allReports().filter(
-    (r) => r.approval?.status === "pending",
+    (r) => reportStatus(r) === "pending",
   ).length;
 }
 function renderReports() {
@@ -90,7 +110,7 @@ function renderReports() {
   const author = $("#author").value;
   const reports = allReports().filter(
     (r) =>
-      (filter === "all" || r.approval?.status === filter) &&
+      (filter === "all" || reportStatus(r) === filter) &&
       (author === "all" || r.author === author),
   );
   $("#report-count").textContent = `서류 ${reports.length}건`;
@@ -99,11 +119,14 @@ function renderReports() {
     b.dataset.reportId = String(r.id);
     const meta = node("div", undefined, "meta");
     meta.append(
-      node("span", `${r.author === "gpt" ? "GPT" : "Claude"} · ${r.kind}`),
       node(
         "span",
-        approvalLabels[r.approval?.status] || "결재 대기",
-        `status ${r.approval?.status || "pending"}`,
+        `${r.doc || "옛 양식"} · ${r.branch || r.kind} · ${r.author === "gpt" ? "GPT" : "Claude"}`,
+      ),
+      node(
+        "span",
+        approvalLabels[reportStatus(r)] || "결재 대기",
+        `status ${reportStatus(r) || "pending"}`,
       ),
     );
     const title = node("strong", r.title);
@@ -121,7 +144,7 @@ function renderReports() {
     list.append(node("p", "조건에 맞는 서류가 없습니다.", "empty"));
   unreadCount();
 }
-function openReport(r) {
+function openReport(r, refresh = false) {
   selectedReport = String(r.id);
   read.add(String(r.id));
   try {
@@ -131,46 +154,58 @@ function openReport(r) {
   }
   $("#report-title").textContent = r.title;
   $("#report-meta").textContent =
-    `${r.author === "gpt" ? "GPT" : "Claude"} / ${r.kind} / ${date(r.created_at)}`;
+    `${r.doc || "번호 없는 옛 서류"} · ${r.branch || r.kind} / ${r.author === "gpt" ? "GPT" : "Claude"} / ${date(r.created_at)}`;
   const approval = $("#approval");
   approval.replaceChildren();
   if (
-    ["approved", "rejected", "feedback", "answered"].includes(
-      r.approval?.status,
+    ["pending", "approved", "rejected", "feedback", "answered"].includes(
+      reportStatus(r),
     )
   )
     approval.append(
+      node("span", approvalLabels[reportStatus(r)], `stamp ${reportStatus(r)}`),
+    );
+  if (!r.status && r.approval?.status === "rejected" && r.approval.reason)
+    approval.append(node("p", r.approval.reason, "reason"));
+  markdown($("#report-body"), r.body_md);
+  const relations = $("#report-relations");
+  relations.replaceChildren();
+  if (r.answered_by) relations.append(docLink(r.answered_by, "최신 답변"));
+  for (const doc of r.answers || [])
+    relations.append(docLink(doc, "반영한 서류"));
+  relations.hidden = !relations.childElementCount;
+  const history = $("#report-history");
+  history.replaceChildren();
+  for (const entry of r.feedback || []) {
+    const item = node(
+      "li",
+      undefined,
+      `history-entry ${entry.closed ? "closed" : "open"}`,
+    );
+    const label =
+      { feedback: "피드백", approve: "승인", reject: "반려" }[entry.type] ||
+      "기록";
+    item.append(
       node(
-        "span",
-        approvalLabels[r.approval.status],
-        `stamp ${r.approval.status}`,
+        "strong",
+        `${label} · ${date(entry.at)} · ${entry.closed ? "처리 완료" : "미처리"}`,
       ),
     );
-  if (
-    ["rejected", "feedback"].includes(r.approval?.status) &&
-    r.approval.reason
-  )
-    approval.append(node("p", r.approval.reason, "reason"));
-  $("#report-body").innerHTML = DOMPurify.sanitize(
-    marked.parse(String(r.body_md || "")),
-    {
-      USE_PROFILES: { html: true },
-      FORBID_TAGS: ["img", "style", "iframe", "form", "input", "button"],
-      FORBID_ATTR: ["style", "id", "name"],
-    },
-  );
-  for (const a of $("#report-body").querySelectorAll("a")) {
-    try {
-      if (
-        !["https:", "http:"].includes(new URL(a.getAttribute("href")).protocol)
-      )
-        a.removeAttribute("href");
-    } catch {
-      a.removeAttribute("href");
-    }
-    a.rel = "noopener noreferrer";
-    a.target = "_blank";
+    const content = node("div", undefined, "history-body");
+    markdown(
+      content,
+      entry.body_md || (entry.type === "reject" ? "사유 없음" : ""),
+    );
+    item.append(content);
+    if (entry.resolved_by) item.append(docLink(entry.resolved_by, "반영 서류"));
+    item.append(externalLink("원문 ↗", entry.url));
+    history.append(item);
   }
+  if (!history.childElementCount)
+    history.append(
+      node("li", "아직 피드백·결재 기록이 없습니다.", "small-label"),
+    );
+  renderDecisions(r, feed?.reports || [], feed?.version === 2);
   const links = $("#report-links");
   links.replaceChildren();
   if (!String(r.id).startsWith("demo-")) {
@@ -184,8 +219,49 @@ function openReport(r) {
       );
   } else
     links.append(node("span", "체험용 서류입니다. 실제로 제출되지 않습니다."));
-  renderReports();
-  $("#report-dialog").showModal();
+  if (!refresh) {
+    renderReports();
+    $("#report-dialog").showModal();
+  }
+}
+function markdown(container, value) {
+  container.innerHTML = DOMPurify.sanitize(marked.parse(String(value || "")), {
+    USE_PROFILES: { html: true },
+    FORBID_TAGS: [
+      "img",
+      "style",
+      "iframe",
+      "form",
+      "input",
+      "button",
+      "textarea",
+      "select",
+      "meta",
+      "link",
+      "base",
+    ],
+    FORBID_ATTR: ["style", "id", "name"],
+  });
+  for (const a of container.querySelectorAll("a")) {
+    try {
+      if (
+        !["https:", "http:"].includes(new URL(a.getAttribute("href")).protocol)
+      )
+        a.removeAttribute("href");
+    } catch {
+      a.removeAttribute("href");
+    }
+    a.rel = "noopener noreferrer";
+    a.target = "_blank";
+  }
+}
+function docLink(doc, label) {
+  const target = feed?.reports.find((r) => r.doc === doc);
+  if (!target)
+    return node("span", `${label} ${doc} (현재 피드에 없음)`, "small-label");
+  const button = node("button", `${label} ${doc} ↗`, "document-link");
+  button.addEventListener("click", () => openReport(target));
+  return button;
 }
 function renderEmployees() {
   const list = $("#staff-shortcuts");
@@ -213,7 +289,7 @@ function renderEmployees() {
       list.append(button);
     }
     button.querySelector("small").textContent =
-      stateLabels[normalizeState(p.state)];
+      `${stateLabels[normalizeState(p.state)]} · 피드백 ${p.open_feedback || 0}`;
   }
   if (selectedEmployee && $("#employee-dialog").open)
     renderEmployeeDetail(selectedEmployee);
@@ -248,6 +324,7 @@ function renderEmployeeDetail(id) {
     summary,
     node("p", p.message || "상태 메시지 없음", "employee-message"),
     task,
+    node("p", `미처리 피드백 ${p.open_feedback || 0}건`, "feedback-count"),
   );
 }
 function openEmployee(id) {
@@ -325,35 +402,39 @@ async function load() {
       !Array.isArray(next.tasks)
     )
       throw Error("잘못된 피드 형식");
-    // PR-B의 상세 피드백 UI 전까지 v1 화면에서도 v2 상태를 정확히 표시한다.
-    if (next.version === 2) {
-      next.reports = next.reports.map((report) => ({
-        ...report,
-        approval: {
-          status: report.status,
-          reason: (report.feedback || [])
-            .filter((entry) => !entry.closed)
-            .map((entry) => entry.body_md)
-            .join("\n"),
-        },
-      }));
-    }
     feed = next;
+    $('[data-filter="rejected"]').hidden = feed.version === 2;
+    if (feed.version === 2 && filter === "rejected") {
+      filter = "all";
+      for (const button of document.querySelectorAll("[data-filter]"))
+        button.setAttribute(
+          "aria-pressed",
+          String(button.dataset.filter === "all"),
+        );
+    }
     office.update(feed.employees);
     for (const report of feed.reports) {
       const id = String(report.id);
       if (initialized && !known.has(id) && !read.has(id))
         office.deliver(report);
-      const status = report.approval?.status;
-      if (approvals.has(id) && approvals.get(id) !== status)
-        office.react(report.author, status);
-      approvals.set(id, status);
+      const current = reaction(report);
+      if (approvals.has(id) && approvals.get(id) !== current.key && current.key)
+        office.react(report.author, current.status);
+      approvals.set(id, current.key);
       known.add(id);
     }
     initialized = true;
     renderEmployees();
     renderReports();
     renderTasks();
+    syncDecisions(feed.reports);
+    if ($("#report-dialog").open) {
+      const selected = allReports().find(
+        (r) => String(r.id) === selectedReport,
+      );
+      if (selected) openReport(selected, true);
+      else $("#report-dialog").close();
+    }
     updateTime();
     $("#demo").disabled = false;
     const live = feed.version === 2;
