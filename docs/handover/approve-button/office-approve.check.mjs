@@ -85,6 +85,23 @@ assert.equal(calls[0].init.method, "POST");
 assert.equal(JSON.parse(calls[0].init.body).body, "/승인 6-2");
 assert.equal(calls[0].init.headers.Authorization, `Bearer ${good}`);
 assert.equal(calls[0].init.redirect, "error");
+// 브라우저 CORS 허용 헤더만 보내야 한다 (GitHub 허용 목록 밖 헤더 금지)
+const allowed = ["accept", "authorization", "content-type"];
+assert.deepEqual(
+  Object.keys(calls[0].init.headers)
+    .map((h) => h.toLowerCase())
+    .filter((h) => !allowed.includes(h)),
+  [],
+);
+assert.equal(calls[0].init.cache, undefined);
+// 네트워크·CORS 차단은 알아볼 수 있는 문구로 바꾼다
+const blocked = async () => {
+  throw new TypeError("Failed to fetch");
+};
+await assert.rejects(
+  m.registerToken(good, "moooncang", { fetchImpl: blocked }),
+  /GitHub에 연결하지 못했습니다.*Failed to fetch/,
+);
 m.tokenStore.clear();
 await assert.rejects(
   m.postDecision({

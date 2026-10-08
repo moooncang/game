@@ -44,18 +44,25 @@ async function gh(
   token,
   { method = "GET", body, fetchImpl = fetch } = {},
 ) {
-  const response = await fetchImpl(API + path, {
-    method,
-    headers: {
-      Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-      Authorization: `Bearer ${token}`,
-      ...(body ? { "Content-Type": "application/json" } : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-    redirect: "error",
-    cache: "no-store",
-  });
+  // 브라우저 CORS 사전 확인을 통과하도록 GitHub이 허용하는 헤더만 보낸다.
+  // (X-GitHub-Api-Version·Cache-Control은 허용 목록에 없어 요청이 차단된다)
+  let response;
+  try {
+    response = await fetchImpl(API + path, {
+      method,
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${token}`,
+        ...(body ? { "Content-Type": "application/json" } : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+      redirect: "error",
+    });
+  } catch (error) {
+    throw new Error(
+      `GitHub에 연결하지 못했습니다. 인터넷 연결이나 브라우저 차단을 확인해 주세요. (${error.message})`,
+    );
+  }
   if (response.status === 401)
     throw new Error("열쇠가 만료됐거나 지워졌습니다. 다시 등록해 주세요.");
   if (response.status === 403 || response.status === 404)
